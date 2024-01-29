@@ -15,27 +15,48 @@
 #points.
 #• Display the data points correctly for the axes.
 #• Set the value range automatically based on the data values present in the data set.
+# ---------------------------------------------------------------------------------------------------------
 
-# Importera GUI toolkitet  
-from tkinter import *
-# Får importerea cvs readers! För att installera pandas skriv "pip install pandas" i terminalen 
-import pandas as pd
+# Importera GUI toolkitet och Pandas (Pandas bara för csv läsning)
+from tkinter import * 
+import pandas as pd # För att installera pandas skriv "pip install pandas" i terminalen 
 
 # Läser in data
 data1 = pd.read_csv('Infovis_task3\data1.csv', header=None)
 data2 = pd.read_csv('Infovis_task3\data2.csv', header=None)
-#print(data1) # test! Allt ser ok ut från läsningen!
 
-main = Tk()
-main.title('Task 3') #Window name
-# Lägg till widgets här mellan!
-# -----------------------------
+# vvvv Lägg till classer för allt här mellan! vvvv
+# -----------------------------------------------------
+def draw_axes(canvas, width, height):
+    # Draw x-axis
+    canvas.create_line(50, height - 50, width - 50, height - 50, width=2)
+
+    # Draw y-axis
+    canvas.create_line(50, height - 50, 50, 50, width=2)
 
 
+def plot_point(canvas, x, y):
+    canvas.create_oval(x - 3, y - 3, x + 3, y + 3, fill="blue")
+
+def main():
+    main = Tk()
+    main.title('Task 3 - InfoViz') #Window name 
+    # Set the dimensions of the canvas
+    width = 500
+    height = 400
+
+    # Create Canvas widget
+    canvas = Canvas(main, width=width, height=height, bg="white")
+    canvas.pack()
+
+    # Draw axes
+    draw_axes(canvas, width, height)
+
+    # Start the Tkinter event loop
+    main.mainloop()
+
+# -----------------------------------------------------
+if __name__ == "__main__":
+    main()
 
 
-button = Button(main, text='Stop', width=25, command=main.destroy)
-button.pack()
-# -----------------------------
-
-main.mainloop()
