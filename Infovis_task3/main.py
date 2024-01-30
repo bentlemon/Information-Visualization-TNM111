@@ -27,8 +27,8 @@ data = pd.read_csv('Infovis_task3\data1.csv', header=None)
 #data = pd.read_csv('Infovis_task3\data2.csv', header=None)
 
 # Global variabel
-CANVAS_WIDTH = 500*2
-CANVAS_HEIGHT = 400*2
+CANVAS_WIDTH = 400*2
+CANVAS_HEIGHT = 300*2
 
 # vvvv Lägg till funktioner för allt här mellan! vvvv
 # -----------------------------------------------------
@@ -59,22 +59,22 @@ def draw_axes(canvas, width, height):
 
     if display_only_positive_axes:
         # Draw x-axis (positive x-axis)
-        canvas.create_line(50, height - 50, width - 50, height - 50, width=2)
+      canvas.create_line(50, height - 50, width - 50, height - 50, width=2)
 
         # Draw ticks on the x-axis
-        for x in range(int(min_X_value), int(max_X_value) + 1, 10):
-            x_pixel = int((x - min_X_value) / (max_X_value - min_X_value) * (width - 100) + 50)
-            canvas.create_line(x_pixel, height - 50, x_pixel, height - 45, width=2)
-            canvas.create_text(x_pixel, height - 35, text=str(x), anchor=tk.N)
+      for x in range(int(min_X_value), int(max_X_value) + 1, 10):
+           x_pixel = int((x - min_X_value) / (max_X_value - min_X_value) * (width - 100) + 50)
+           canvas.create_line(x_pixel, height - 50, x_pixel, height - 45, width=2)
+           canvas.create_text(x_pixel, height - 35, text=str(x), anchor=tk.N)
 
         # Draw y-axis (positive y-axis)
-        canvas.create_line(50, height - 50, 50, 50, width=2)
+           canvas.create_line(50, height - 50, 50, 50, width=2)
 
         # Draw ticks on the y-axis
-        for y in range(int(min_Y_value), int(max_Y_value) + 1, 5):
-            y_pixel = int((y - min_Y_value) / (max_Y_value - min_Y_value) * (height - 100) + 50)
-            canvas.create_line(50, height - y_pixel, 55, height - y_pixel, width=2)
-            canvas.create_text(35, height - y_pixel, text=str(y), anchor=tk.E)
+      for y in range(int(min_Y_value), int(max_Y_value) + 1, 5):
+           y_pixel = int((y - min_Y_value) / (max_Y_value - min_Y_value) * (height - 100) + 50)
+           canvas.create_line(50, height - y_pixel, 55, height - y_pixel, width=2)
+           canvas.create_text(35, height - y_pixel, text=str(y), anchor=tk.E)
     else:
         # Draw x-axis
         canvas.create_line(50, height - 50, width - 50, height - 50, width=2)
@@ -106,14 +106,26 @@ def addLegend(canvas, width, height):
     return legend_rect, legend_text
     
 
-def plot_point(canvas, x, y, category):
-    # ska köras med 3 olika if sater för formerna! 
-    if category == 'a':
-        canvas.create_line(x - 2, y -2, x + 2, y + 2, fill='red', width=5)  # Exempel: Grönt sträck för kategori A
-    elif category == 'b':
-        canvas.create_oval(x - 5, y - 5, x + 5, y + 5, fill='blue')  # Exempel: Blå cirkel för kategori B
-    else:
-        canvas.create_polygon(x, y - 5, x + 5, y + 5, x - 5, y + 5, fill='green')  # Exempel: Grön triangel för andra kategorier
+
+def plot_point(canvas, x, y, category, min_x, max_x, min_y, max_y, canvas_width, canvas_height):
+    # Calculate the scaling factors for x and y coordinates
+    x_scale = canvas_width / (max_x - min_x)
+    y_scale = canvas_height / (max_y - min_y)
+
+    # Scale the data coordinates to fit within the canvas
+    canvas_x = (x - min_x) * x_scale
+    canvas_y = canvas_height - (y - min_y) * y_scale
+
+    # Check if the point falls within the canvas boundaries
+    if 0 <= canvas_x <= canvas_width and 0 <= canvas_y <= canvas_height:
+        # Plot the point only if it falls within the canvas
+        if category == 'a':
+            canvas.create_rectangle(canvas_x - 3, canvas_y - 3, canvas_x + 3, canvas_y + 3, fill='red', width=5)  # Example: Red line for category A
+        elif category == 'b':
+            canvas.create_oval(canvas_x - 5, canvas_y - 5, canvas_x + 5, canvas_y + 5, fill='blue')  # Example: Blue circle for category B
+        else:
+            canvas.create_polygon(canvas_x, canvas_y - 5, canvas_x + 5, canvas_y + 5, canvas_x - 5, canvas_y + 5, fill='green')  # Example: Green triangle for other categories
+
 
    
 
@@ -125,6 +137,8 @@ def main():
     canvas = Canvas(main, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
     canvas.pack()
 
+    min_x, max_x = findLowestValue(data)[0], findHighestValue(data)[0]
+    min_y, max_y = findLowestValue(data)[1], findHighestValue(data)[1]
     # Draw axes with scaling correctly for the min and max values in the data sets
     draw_axes(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
 
@@ -133,7 +147,7 @@ def main():
         x_value = row[0]  # x-värdet för aktuell datapunkt
         y_value = row[1]  # y-värdet för aktuell datapunkt
         category = row[2]  # Kategorin för aktuell datapunkt
-        plot_point(canvas, x_value, y_value, category)
+        plot_point(canvas, x_value, y_value, category, min_x, max_x, min_y, max_y, CANVAS_WIDTH, CANVAS_HEIGHT)
 
     legend_rect, legend_text = addLegend(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
 
