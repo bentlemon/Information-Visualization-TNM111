@@ -9,12 +9,12 @@
 #Your application should be able to load and visualize the data sets found in the “Assignment 2” folder
 #on Lisam. Your visualization tool should at least be able to:
 #
-#• Draw the x- and y-axis and the ticks and tick values. X
-#• Display a legend that shows the categorical information. X 
-#• Display the categorical information of the data points by using different shapes to represent the
-#points.
-#• Display the data points correctly for the axes.
-#• Set the value range automatically based on the data values present in the data set.
+# • Draw the x- and y-axis and the ticks and tick values. X
+# • Display a legend that shows the categorical information. SKA GÖRAS
+# • Display the categorical information of the data points by using different shapes to represent the
+#   points. X
+# • Display the data points correctly for the axes. X
+# • Set the value range automatically based on the data values present in the data set.
 # ---------------------------------------------------------------------------------------------------------
 
 # Importera GUI toolkitet och Pandas (Pandas bara för csv läsning)
@@ -23,10 +23,10 @@ import tkinter as tk
 import pandas as pd # För att installera pandas skriv "pip install pandas" i terminalen 
 
 # Läser in data
-data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller negativa värden
-#data = pd.read_csv('Infovis_task3\data2.csv', header=None) # Innehåller bara positiva värden 
+#data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller negativa värden
+data = pd.read_csv('Infovis_task3\data2.csv', header=None) # Innehåller bara positiva värden 
 
-# Global variabel
+# Global variables
 CANVAS_WIDTH = 500
 CANVAS_HEIGHT = 400
 
@@ -47,7 +47,6 @@ def findLowestValue(data):
     min_Y_value = data[1].min()
 
     return min_X_value, min_Y_value
-
 
 def draw_axes(canvas, width, height):
     # Finding the lowest/highest values to scale axis correctly
@@ -96,7 +95,6 @@ def draw_axes(canvas, width, height):
             canvas.create_line(width/2, height - y_pixel, width/2 - 5, height - y_pixel, width=2)
             canvas.create_text(width/2 - 10 , height - y_pixel, text=f"{y:.1f}", anchor=tk.E)
 
-
 def addLegend(canvas, width, height):
     legend_rect = canvas.create_rectangle((height * 1.2) , width * 0.05 , width * 0.7, height * 0.25,
                                 outline = "black", width = 1)
@@ -105,9 +103,8 @@ def addLegend(canvas, width, height):
                                      text="Legend Text", anchor=tk.CENTER)
 
     return legend_rect, legend_text
-    
 
-
+# FIXA SÅ ATT DEN PLOTTAR PÅ RÄTT STÄLLE MED RESP. TILL drawAxes() funk.    
 def plot_point(canvas, x, y, category, min_x, max_x, min_y, max_y, canvas_width, canvas_height):
     # Calculate the scaling factors for x and y coordinates
     x_scale = canvas_width / (max_x - min_x)
@@ -126,7 +123,6 @@ def plot_point(canvas, x, y, category, min_x, max_x, min_y, max_y, canvas_width,
             canvas.create_oval(canvas_x - 5, canvas_y - 5, canvas_x + 5, canvas_y + 5, fill='blue')  # Example: Blue circle for category B
         else:
             canvas.create_polygon(canvas_x, canvas_y - 5, canvas_x + 5, canvas_y + 5, canvas_x - 5, canvas_y + 5, fill='green')  # Example: Green triangle for other categories
-
 
 def main():
     main = Tk()
