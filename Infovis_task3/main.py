@@ -23,8 +23,8 @@ import tkinter as tk
 import pandas as pd # För att installera pandas skriv "pip install pandas" i terminalen 
 
 # Läser in data
-#data = pd.read_csv('Infovis_task3\data1.csv', header=None)
-data = pd.read_csv('Infovis_task3\data2.csv', header=None)
+data = pd.read_csv('Infovis_task3\data1.csv', header=None)
+#data = pd.read_csv('Infovis_task3\data2.csv', header=None)
 
 # Global variabel
 CANVAS_WIDTH = 500*2
@@ -106,9 +106,16 @@ def addLegend(canvas, width, height):
     return legend_rect, legend_text
     
 
-def plot_point(canvas, x, y):
+def plot_point(canvas, x, y, category):
     # ska köras med 3 olika if sater för formerna! 
-    ()
+    if category == 'a':
+        canvas.create_line(x - 2, y -2, x + 2, y + 2, fill='red', width=5)  # Exempel: Grönt sträck för kategori A
+    elif category == 'b':
+        canvas.create_oval(x - 5, y - 5, x + 5, y + 5, fill='blue')  # Exempel: Blå cirkel för kategori B
+    else:
+        canvas.create_polygon(x, y - 5, x + 5, y + 5, x - 5, y + 5, fill='green')  # Exempel: Grön triangel för andra kategorier
+
+   
 
 def main():
     main = Tk()
@@ -120,6 +127,13 @@ def main():
 
     # Draw axes with scaling correctly for the min and max values in the data sets
     draw_axes(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
+
+     # För varje datapunkt i din data
+    for index, row in data.iterrows():
+        x_value = row[0]  # x-värdet för aktuell datapunkt
+        y_value = row[1]  # y-värdet för aktuell datapunkt
+        category = row[2]  # Kategorin för aktuell datapunkt
+        plot_point(canvas, x_value, y_value, category)
 
     legend_rect, legend_text = addLegend(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
 
