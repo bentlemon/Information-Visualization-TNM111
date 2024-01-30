@@ -8,7 +8,7 @@
 # Importera GUI toolkitet  
 from tkinter import *
 
-# Lägg till widgets här mellan!
+# Lägg till widgets här mellan! 
 # -----------------------------
 main = Tk()
 main.title('Task 3') #Window name
