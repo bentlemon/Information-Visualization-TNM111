@@ -105,36 +105,6 @@ def addLegend(canvas, width, height):
                                      text="Legend Text", anchor=tk.CENTER)
 
     return legend_rect, legend_text
-
-# Function to handle mouse click events
-# Left click
-def handle_click_left(event):
-    global selected_point, new_origin
-    x_value, y_value = event.x_value, event.y_value
-
-       # Check if any data point is clicked
-    for i, (px, py) in enumerate(data):
-        if px - 5 <= x_value <= px + 5 and py - 5 <= y_value <= py + 5:
-            if selected_point == i:
-                # Toggle new grid system off
-                new_origin = None
-                selected_point = None
-            else:
-                # Toggle new grid system on with the selected point as the new origin
-                new_origin = data[i]
-                selected_point = i
-            draw_visualization()
-
-# Check is any data point is clicked
-def draw_visualization():
-    for i, (x, y) in enumerate(data):
-        # Determine color based on quadrant
-        color = "red" if (x < new_origin[0] and y < new_origin[1]) else \
-                "green" if (x < new_origin[0] and y > new_origin[1]) else \
-                "blue" if (x > new_origin[0] and y < new_origin[1]) else \
-                "yellow"
-        
-    
     
 
 
@@ -157,12 +127,34 @@ def plot_point(canvas, x, y, category, min_x, max_x, min_y, max_y, canvas_width,
         else:
             canvas.create_polygon(canvas_x, canvas_y - 5, canvas_x + 5, canvas_y + 5, canvas_x - 5, canvas_y + 5, fill='green')  # Example: Green triangle for other categories
 
+def on_click(event):
+    if event.num == 1:  # Vänsterklick
+        # Hitta den närmaste punkten till musklicket
+        min_distance = float('inf')
+        nearest_point = None
+        for point in points:
+            distance = ((event.x - point[0])**2 + (event.y - point[1])**2)**0.5
+            if distance < min_distance:
+                min_distance = distance
+                nearest_point = point
+        
+        # Beräkna förskjutningen för att centrera den valda punkten
+        dx = nearest_point[0] - 250
+        dy = nearest_point[1] - 250
+        
+        # Uppdatera positionerna för alla punkter
+        new_points = [(x - dx, y - dy) for x, y in points]
+        
+        # Rensa och rita om grafen med den nya originpunkten
+        canvas.delete("all")
+        draw_axes(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
+        plot_points(canvas, new_points)
 
-   
 
 def main():
     main = Tk()
     main.title('Task 3 - InfoViz') #Window name 
+    
 
     # Create Canvas widget
     canvas = Canvas(main, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
@@ -179,6 +171,7 @@ def main():
         y_value = row[1]  # y-värdet för aktuell datapunkt
         category = row[2]  # Kategorin för aktuell datapunkt
         plot_point(canvas, x_value, y_value, category, min_x, max_x, min_y, max_y, CANVAS_WIDTH, CANVAS_HEIGHT)
+
 
     # Draw axes with scaling correctly for the min and max values in the data sets
     draw_axes(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
