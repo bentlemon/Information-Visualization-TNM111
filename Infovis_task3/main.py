@@ -23,8 +23,13 @@ import tkinter as tk
 import pandas as pd # För att installera pandas skriv "pip install pandas" i terminalen 
 
 # Läser in data
+<<<<<<< Updated upstream
 data = pd.read_csv('Infovis_task3\data1.csv', header=None)
 #data = pd.read_csv('Infovis_task3\data2.csv', header=None)
+=======
+#data = pd.read_csv('data1.csv', header=None) # Innehåller negativa värden
+data = pd.read_csv('data2.csv', header=None) # Innehåller bara positiva värden 
+>>>>>>> Stashed changes
 
 # Global variabel
 CANVAS_WIDTH = 500*2
@@ -106,9 +111,56 @@ def addLegend(canvas, width, height):
     return legend_rect, legend_text
     
 
+<<<<<<< Updated upstream
 def plot_point(canvas, x, y):
     # ska köras med 3 olika if sater för formerna! 
     ()
+=======
+
+def plot_point(canvas, x, y, category, min_x, max_x, min_y, max_y, canvas_width, canvas_height):
+    # Calculate the scaling factors for x and y coordinates
+    x_scale = canvas_width / (max_x - min_x)
+    y_scale = canvas_height / (max_y - min_y)
+
+    # Scale the data coordinates to fit within the canvas
+    canvas_x = (x - min_x) * x_scale
+    canvas_y = canvas_height - (y - min_y) * y_scale
+
+    # Check if the point falls within the canvas boundaries
+    if 0 <= canvas_x <= canvas_width and 0 <= canvas_y <= canvas_height:
+        # Plot the point only if it falls within the canvas
+        if category == 'a':
+            canvas.create_rectangle(canvas_x-5, canvas_y-5, canvas_x+5, canvas_y+5, fill='red')  # Example: Red line for category A
+        elif category == 'b':
+            canvas.create_oval(canvas_x - 5, canvas_y - 5, canvas_x + 5, canvas_y + 5, fill='blue')  # Example: Blue circle for category B
+        else:
+            canvas.create_polygon(canvas_x, canvas_y - 5, canvas_x + 5, canvas_y + 5, canvas_x - 5, canvas_y + 5, fill='green')  # Example: Green triangle for other categories
+
+def on_click(event):
+    if event.num == 1:  # Vänsterklick
+        # Hitta den närmaste punkten till musklicket
+        min_distance = float('inf')
+        nearest_point = None
+        
+        for point in points:
+            distance = ((event.x - point[0])**2 + (event.y - point[1])**2)**0.5
+            if distance < min_distance:
+                min_distance = distance
+                nearest_point = point
+        
+        # Beräkna förskjutningen för att centrera den valda punkten
+        dx = nearest_point[0] - 250
+        dy = nearest_point[1] - 250
+        
+        # Uppdatera positionerna för alla punkter
+        new_points = [(x - dx, y - dy) for x, y in points]
+        
+        # Rensa och rita om grafen med den nya originpunkten
+        canvas.delete("all")
+        draw_axes(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
+        plot_point(canvas, new_points)
+
+>>>>>>> Stashed changes
 
 def main():
     main = Tk()
