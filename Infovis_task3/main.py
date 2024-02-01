@@ -35,12 +35,12 @@ import tkinter as tk
 import pandas as pd # För att installera pandas skriv "pip install pandas" i terminalen 
 
 # Läser in data
-data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller negativa värden
-#data = pd.read_csv('data2.csv', header=None) # Innehåller bara positiva värden 
+#data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller negativa värden
+data = pd.read_csv('Infovis_task3\data2.csv', header=None) # Innehåller bara positiva värden 
 
 # Global variables
-CANVAS_WIDTH = 500
-CANVAS_HEIGHT = 400
+CANVAS_WIDTH = 500*1.2
+CANVAS_HEIGHT = 500*1.2
 CENTER_X = CANVAS_WIDTH / 2
 CENTER_Y = CANVAS_HEIGHT / 2
 
@@ -93,27 +93,47 @@ def draw_axes(canvas, width, height):
             canvas.create_text(width/2 - 10 , height - y_pixel, text=f"{y:.1f}", anchor=tk.E)
 
 def addLegend(canvas, width, height):
-    legend_rect = canvas.create_rectangle((height * 1.2) , width * 0.05 , width * 0.7, height * 0.25,
-                                outline = "black", width = 1)
-    
-    legend_text = canvas.create_text((width * 0.7 + height * 1.2) / 2, (height * 0.25 + width * 0.05) / 2,
-                                     text="Legend Text", anchor=tk.CENTER)
+    # Create the first rectangle
+    legend_rect = canvas.create_rectangle(height * 1.2, width * 0.05, width * 0.7, height * 0.25,
+                                          outline="black", width=1)
 
-    return legend_rect, legend_text
+    # Get the coordinates of the first rectangle
+    x1, y1, x2, y2 = canvas.coords(legend_rect)
+
+    # Text for the legend title (centered within the first rectangle)
+    legend_title = canvas.create_text((x1 + x2) / 2, (y1 + y2) / 2 - (y2 - y1) / 4,
+                                      text="Legend", anchor=tk.CENTER, font=("Helvetica", 10, "bold"))
+    
+    symbol_size = (x2 - x1) * 0.04
+
+    circle_a = canvas.create_oval((x1 + x2) / 2 - symbol_size, (y1 + y2) / 2, (x1 + x2) / 2 + symbol_size, (y1 + y2) / 2 + symbol_size, fill="red")
+    triangle_b = canvas.create_polygon((x1 + x2) / 2 - symbol_size, (y1 + y2) / 2 + symbol_size, (x1 + x2) / 2, (y1 + y2) / 2 + symbol_size * 2, (x1 + x2) / 2 + symbol_size, (y1 + y2) / 2 + symbol_size, fill="green")
+    square_c = canvas.create_rectangle((x1 + x2) / 2 - symbol_size, (y1 + y2) / 2 + symbol_size * 2, (x1 + x2) / 2 + symbol_size, (y1 + y2) / 2 + symbol_size * 3, fill="blue")
+
+    return legend_rect, legend_title, circle_a, triangle_b, square_c
+
+
 
 def plot_points(canvas):
     points = []
+    max_X_value, max_Y_value = findHighestValue(data)
+    min_X_value, min_Y_value = findLowestValue(data)
+
     for index, row in data.iterrows():
         x = row[0]
         y = row[1] 
         category = row[2]
+
+        # Re-scaled the x and y coordinates to fit the scaled axes
+        scaled_x = (x - min_X_value) / (max_X_value - min_X_value) * (CANVAS_WIDTH - 100) + 50
+        scaled_y = CANVAS_HEIGHT - ((y - min_Y_value) / (max_Y_value - min_Y_value) * (CANVAS_HEIGHT - 100) + 50)
         
-        if category == 'a':
-            points.append(canvas.create_polygon(CENTER_X + x, CENTER_Y + y - 5, CENTER_X + x - 5, CENTER_Y + y + 5, CENTER_X + x + 5, CENTER_Y + y + 5, fill="red"))
-        elif category == 'b': 
-            points.append(canvas.create_polygon(CENTER_X + x, CENTER_Y + y - 5, CENTER_X + x + 5, CENTER_Y + y + 5, CENTER_X + x - 5, CENTER_Y + y + 5, fill="green"))
+        if category == 'a' or category == 'foo':
+            points.append(canvas.create_polygon(scaled_x, scaled_y - 5, scaled_x - 5, scaled_y + 5, scaled_x + 5, scaled_y + 5, fill="red"))
+        elif category == 'b' or category == 'baz': 
+            points.append(canvas.create_polygon(scaled_x, scaled_y - 5, scaled_x + 5, scaled_y + 5, scaled_x - 5, scaled_y + 5, fill="green"))
         else:
-            points.append(canvas.create_oval(CENTER_X + x - 3, CENTER_Y + y - 3, CENTER_X + x + 3, CENTER_Y + y + 3, fill="blue"))
+            points.append(canvas.create_oval(scaled_x - 3, scaled_y - 3, scaled_x + 3, scaled_y + 3, fill="blue"))
     return points
 
 def get_quadrant(x, y):
@@ -190,13 +210,14 @@ def main():
     draw_axes(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
     points = plot_points(canvas)
     
+    legend_elements = addLegend(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
     canvas.bind("<Button-3>", lambda event: highlight_nearest_points(event, canvas, points))
     canvas.bind("<Button-1>", lambda event: update_points(event, canvas, points))
     
     main.mainloop()
 
 # -----------------------------------------------------
-    
+# Initialization code     
 if __name__ == "__main__":
     main()
 
