@@ -14,7 +14,19 @@
 # • Display the categorical information of the data points by using different shapes to represent the
 #   points. X
 # • Display the data points correctly for the axes. X
-# • Set the value range automatically based on the data values present in the data set.
+# • Set the value range automatically based on the data values present in the data set. X
+
+# INSTRUCTIONS PART 2: 
+# After implementing the basic scatter plot, you should also add the following two features when interacting with a data point:
+
+# • When left-clicking with the mouse on a data point, a new grid system will be used where the selected point will become the new
+#  origin. The other points should get distinct colors depending on which quadrants they are located in. This new grid system is 
+#  deactivated when the user left-clicks on the selected point again. Do not forget to mark the selected point somehow, e.g., 
+#  stroke or highlight around the shape.
+
+# • When right-clicking with the mouse (or by using any other interaction of your choice, e.g., ctrl+left-click) on a data point,
+#   the nearest five geometrically neighboring points, based on Euclidean distance, will be highlighted with a color of your choice.
+#   This feature will be deactivated when the user right-clicks on the selected point again.
 # ---------------------------------------------------------------------------------------------------------
 
 # Importera GUI toolkitet och Pandas (Pandas bara för csv läsning)
@@ -23,12 +35,14 @@ import tkinter as tk
 import pandas as pd # För att installera pandas skriv "pip install pandas" i terminalen 
 
 # Läser in data
-data = pd.read_csv('data1.csv', header=None) # Innehåller negativa värden
+data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller negativa värden
 #data = pd.read_csv('data2.csv', header=None) # Innehåller bara positiva värden 
 
 # Global variables
 CANVAS_WIDTH = 500
 CANVAS_HEIGHT = 400
+CENTER_X = CANVAS_WIDTH / 2
+CENTER_Y = CANVAS_HEIGHT / 2
 
 # vvvv Lägg till funktioner för allt här mellan! vvvv
 # -----------------------------------------------------
@@ -49,50 +63,33 @@ def findLowestValue(data):
     return min_X_value, min_Y_value
 
 def draw_axes(canvas, width, height):
-    # Finding the lowest/highest values to scale axis correctly
-    max_X_value, max_Y_value = findHighestValue(data) # OK!
-    min_X_value, min_Y_value = findLowestValue(data) # OK!
-
-    # Check if displaying only positive x and y axes is sufficient
-
-    if (max_X_value > 0 and min_X_value > 0 and max_Y_value > 0 and min_Y_value > 0):
-        # Draw x-axis (positive x-axis)
-        canvas.create_line(50, height - 50, width - 50, height - 50, width=2)
-
-        # Draw ticks on the x-axis
+    max_X_value, max_Y_value = findHighestValue(data)
+    min_X_value, min_Y_value = findLowestValue(data)
+    
+    if (max_X_value > 0 and min_X_value > 0 and max_Y_value > 0 and min_Y_value > 0): # For one quadrant (only positive values)
+        canvas.create_line(50, height - 50, width - 50, height - 50, width=2) # x-axis
         for x in range(int(min_X_value), int(max_X_value) + 1, 10):
             x_pixel = int((x - min_X_value) / (max_X_value - min_X_value) * (width - 100) + 50)
-            canvas.create_line(x_pixel, height - 50, x_pixel, height - 45, width=2)
+            canvas.create_line(x_pixel, height - 50, x_pixel, height - 45, width=2) # x-axis ticks
             canvas.create_text(x_pixel, height - 35, text=f"{x:.1f}", anchor=tk.N)
 
-        # Draw y-axis (positive y-axis)
         canvas.create_line(50, height - 50, 50, 50, width=2)
-
-        # Draw ticks on the y-axis
-        for y in range(int(min_Y_value + 1), int(max_Y_value) + 1, 10):
+        for y in range(int(min_Y_value + 1), int(max_Y_value) + 1, 10): # y-axis
             y_pixel = int((y - min_Y_value) / (max_Y_value - min_Y_value) * (height - 100) + 50)
-            canvas.create_line(50, height - y_pixel, 55, height - y_pixel, width=2)
+            canvas.create_line(50, height - y_pixel, 55, height - y_pixel, width=2) # y-axis ticks
             canvas.create_text(35, height - y_pixel, text=f"{y:.1f}", anchor=tk.E)
 
-    elif (min_X_value < 0 or min_Y_value < 0):
-        # Draw x-axis (negative and positive)
-        canvas.create_line(50, height/2, width - 50, height/2 , width=2)
-        #                  x1,     y1,         x2,         y2
-
-        # Draw ticks on the x-axis
+    elif (min_X_value < 0 or min_Y_value < 0): # For 4 quadrant (pos. and neg. values)
+        canvas.create_line(50, height/2, width - 50, height/2 , width=2) # x-axis
         for x in range(int(min_X_value), int(max_X_value) + 1, 10):
             x_pixel = int((x - min_X_value) / (max_X_value - min_X_value) * (width - 100) + 50)
-            canvas.create_line(x_pixel, height/2 , x_pixel, height/2 + 5, width=2)
+            canvas.create_line(x_pixel, height/2 , x_pixel, height/2 + 5, width=2) # x-axis ticks
             canvas.create_text(x_pixel, height/2 + 10, text=f"{x:.1f}", anchor=tk.N)
 
-        # Draw y-axis (negative and positive)
         canvas.create_line(width/2, height - 50, width/2, 50, width=2)
-        #                  x1,         y1,         x2,    y2
-
-        # Draw ticks on the y-axis
-        for y in range(int(min_Y_value), int(max_Y_value) + 1, 10):
+        for y in range(int(min_Y_value), int(max_Y_value) + 1, 10): # y-axis
             y_pixel = int((y - min_Y_value) / (max_Y_value - min_Y_value) * (height - 100) + 50)
-            canvas.create_line(width/2, height - y_pixel, width/2 - 5, height - y_pixel, width=2)
+            canvas.create_line(width/2, height - y_pixel, width/2 - 5, height - y_pixel, width=2) # y-axis ticks
             canvas.create_text(width/2 - 10 , height - y_pixel, text=f"{y:.1f}", anchor=tk.E)
 
 def addLegend(canvas, width, height):
@@ -104,52 +101,102 @@ def addLegend(canvas, width, height):
 
     return legend_rect, legend_text
 
-# FIXA SÅ ATT DEN PLOTTAR PÅ RÄTT STÄLLE MED RESP. TILL drawAxes() funk.    
-def plot_point(canvas, x, y, category, min_x, max_x, min_y, max_y, canvas_width, canvas_height):
-    # Calculate the scaling factors for x and y coordinates
-    x_scale = canvas_width / (max_x - min_x)
-    y_scale = canvas_height / (max_y - min_y)
-
-    # Scale the data coordinates to fit within the canvas
-    canvas_x = (x - min_x) * x_scale
-    canvas_y = canvas_height - (y - min_y) * y_scale
-
-    # Check if the point falls within the canvas boundaries
-    if 0 <= canvas_x <= canvas_width and 0 <= canvas_y <= canvas_height:
-        # Plot the point only if it falls within the canvas
+def plot_points(canvas):
+    points = []
+    for index, row in data.iterrows():
+        x = row[0]
+        y = row[1] 
+        category = row[2]
+        
         if category == 'a':
-            canvas.create_rectangle(canvas_x - 3, canvas_y - 3, canvas_x + 3, canvas_y + 3, fill='red', width=5)  # Example: Red line for category A
-        elif category == 'b':
-            canvas.create_oval(canvas_x - 5, canvas_y - 5, canvas_x + 5, canvas_y + 5, fill='blue')  # Example: Blue circle for category B
+            points.append(canvas.create_polygon(CENTER_X + x, CENTER_Y + y - 5, CENTER_X + x - 5, CENTER_Y + y + 5, CENTER_X + x + 5, CENTER_Y + y + 5, fill="red"))
+        elif category == 'b': 
+            points.append(canvas.create_polygon(CENTER_X + x, CENTER_Y + y - 5, CENTER_X + x + 5, CENTER_Y + y + 5, CENTER_X + x - 5, CENTER_Y + y + 5, fill="green"))
         else:
-            canvas.create_polygon(canvas_x, canvas_y - 5, canvas_x + 5, canvas_y + 5, canvas_x - 5, canvas_y + 5, fill='green')  # Example: Green triangle for other categories
+            points.append(canvas.create_oval(CENTER_X + x - 3, CENTER_Y + y - 3, CENTER_X + x + 3, CENTER_Y + y + 3, fill="blue"))
+    return points
+
+def get_quadrant(x, y):
+    if x >= 0 and y >= 0:
+        return 1
+    elif x < 0 and y >= 0:
+        return 2
+    elif x < 0 and y < 0:
+        return 3
+    else:
+        return 4
+    
+def update_points(event, canvas, points):
+    x = event.x - CENTER_X
+    y = event.y - CENTER_Y
+    
+    selected_point_index = None
+    for i, row in data.iterrows():
+        px = row[0] - x
+        py = row[1] - y
+        if abs(px) <= 3 and abs(py) <= 3:
+            selected_point_index = i
+            break
+    
+    for i, row in data.iterrows():
+        px = row[0] - x
+        py = row[1] - y
+        quadrant = get_quadrant(px, py)
+        
+        if i == selected_point_index:
+            canvas.itemconfig(points[i], fill="yellow")
+        elif quadrant == 1:
+            canvas.itemconfig(points[i], fill="red")
+        elif quadrant == 2:
+            canvas.itemconfig(points[i], fill="orange")
+        elif quadrant == 3:
+            canvas.itemconfig(points[i], fill="purple")
+        elif quadrant == 4:
+            canvas.itemconfig(points[i], fill="black")
+
+def highlight_nearest_points(event, canvas, points):
+    x = event.x - CENTER_X
+    y = event.y - CENTER_Y
+    
+    selected_point_index = None
+    for i, row in data.iterrows():
+        px = row[0] - x
+        py = row[1] - y
+        if abs(px) <= 3 and abs(py) <= 3:
+            selected_point_index = i
+            break
+    
+    if selected_point_index is not None:
+        distances = []
+        for i, row in data.iterrows():
+            if i != selected_point_index:
+                dx = row[0] - data.iloc[selected_point_index, 0]
+                dy = row[1] - data.iloc[selected_point_index, 1]
+                distance = (dx ** 2 + dy ** 2) ** 0.5
+                distances.append((i, distance))
+        
+        nearest_points = sorted(distances, key=lambda x: x[1])[:5]
+        
+        for index, _ in nearest_points:
+            canvas.itemconfig(points[index], fill="white")
 
 def main():
     main = Tk()
-    main.title('Task 3 - InfoViz') #Window name 
-
-    # Create Canvas widget
-    canvas = Canvas(main, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
+    main.title('Task 3 - InfoViz')
+   
+    canvas = tk.Canvas(main, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
     canvas.pack()
 
-    min_x, max_x = findLowestValue(data)[0], findHighestValue(data)[0]
-    min_y, max_y = findLowestValue(data)[1], findHighestValue(data)[1]
-    # Draw axes with scaling correctly for the min and max values in the data sets
     draw_axes(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
-
-     # För varje datapunkt i din data
-    for index, row in data.iterrows():
-        x_value = row[0]  # x-värdet för aktuell datapunkt
-        y_value = row[1]  # y-värdet för aktuell datapunkt
-        category = row[2]  # Kategorin för aktuell datapunkt
-        plot_point(canvas, x_value, y_value, category, min_x, max_x, min_y, max_y, CANVAS_WIDTH, CANVAS_HEIGHT)
-
-    legend_rect, legend_text = addLegend(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
-
-    # Start the Tkinter event loop
+    points = plot_points(canvas)
+    
+    canvas.bind("<Button-3>", lambda event: highlight_nearest_points(event, canvas, points))
+    canvas.bind("<Button-1>", lambda event: update_points(event, canvas, points))
+    
     main.mainloop()
 
 # -----------------------------------------------------
+    
 if __name__ == "__main__":
     main()
 
