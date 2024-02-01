@@ -23,8 +23,8 @@ import tkinter as tk
 import pandas as pd # För att installera pandas skriv "pip install pandas" i terminalen 
 
 # Läser in data
-#data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller negativa värden
-data = pd.read_csv('Infovis_task3\data2.csv', header=None) # Innehåller bara positiva värden 
+data = pd.read_csv('data1.csv', header=None) # Innehåller negativa värden
+#data = pd.read_csv('data2.csv', header=None) # Innehåller bara positiva värden 
 
 # Global variables
 CANVAS_WIDTH = 500
