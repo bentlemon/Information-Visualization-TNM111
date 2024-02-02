@@ -35,7 +35,7 @@ import tkinter as tk
 import pandas as pd # För att installera pandas skriv "pip install pandas" i terminalen 
 
 # Läser in data
-data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller negativa värden
+data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller positiva och negativa värden
 #data = pd.read_csv('Infovis_task3\data2.csv', header=None) # Innehåller bara positiva värden 
 
 # Global variables
@@ -101,7 +101,7 @@ def draw_axes(canvas, width, height):
 
 def addLegend(canvas):
     # Create the first rectangle
-    legend_rect = canvas.create_rectangle(CANVAS_HEIGHT - 5, CANVAS_WIDTH * 0.1, CANVAS_WIDTH * 0.75, CANVAS_HEIGHT * 0.25,
+    legend_rect = canvas.create_rectangle(CANVAS_HEIGHT - 5, CANVAS_WIDTH * 0.1, CANVAS_WIDTH * 0.75 , CANVAS_HEIGHT * 0.25,
                                           outline="gray", width=1)
 
     # Get the coordinates of the first rectangle
@@ -147,11 +147,11 @@ def plot_points(canvas):
         scaled_y = CANVAS_HEIGHT - ((y - min_Y_value) / (max_Y_value - min_Y_value) * (CANVAS_HEIGHT - 100) + 50)
         
         if category == 'a' or category == 'foo':
-            points.append(canvas.create_polygon(scaled_x, scaled_y - 5, scaled_x - 5, scaled_y + 5, scaled_x + 5, scaled_y + 5, fill="red"))
+            points.append(canvas.create_oval(scaled_x - 3, scaled_y - 3, scaled_x + 3, scaled_y + 3, fill="blue"))
         elif category == 'b' or category == 'baz': 
             points.append(canvas.create_polygon(scaled_x, scaled_y - 5, scaled_x + 5, scaled_y + 5, scaled_x - 5, scaled_y + 5, fill="green"))
         else:
-            points.append(canvas.create_oval(scaled_x - 3, scaled_y - 3, scaled_x + 3, scaled_y + 3, fill="blue"))
+            points.append(canvas.create_rectangle(scaled_x, scaled_y, scaled_x - 5, scaled_y + 5,fill="red"))
     return points
 
 def get_quadrant(x, y):
