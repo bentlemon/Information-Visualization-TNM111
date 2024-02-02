@@ -35,12 +35,12 @@ import tkinter as tk
 import pandas as pd # För att installera pandas skriv "pip install pandas" i terminalen 
 
 # Läser in data
-data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller positiva och negativa värden
-#data = pd.read_csv('Infovis_task3\data2.csv', header=None) # Innehåller bara positiva värden 
+#data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller positiva och negativa värden
+data = pd.read_csv('Infovis_task3\data2.csv', header=None) # Innehåller bara positiva värden 
 
 # Global variables
-CANVAS_WIDTH = 500*1.2
-CANVAS_HEIGHT = 500*1.2
+CANVAS_WIDTH = 600
+CANVAS_HEIGHT = 600
 CENTER_X = CANVAS_WIDTH / 2
 CENTER_Y = CANVAS_HEIGHT / 2
 
@@ -154,16 +154,47 @@ def plot_points(canvas):
             points.append(canvas.create_rectangle(scaled_x, scaled_y, scaled_x - 5, scaled_y + 5,fill="red"))
     return points
 
-def get_quadrant(x, y):
-    if x >= 0 and y >= 0:
+def get_quadrant(selected_x, selected_y, x, y):
+    if x >= selected_x and y >= selected_y:
         return 1
-    elif x < 0 and y >= 0:
+    elif x < selected_x and y >= selected_y:
         return 2
-    elif x < 0 and y < 0:
+    elif x < selected_x and y < selected_y:
         return 3
     else:
         return 4
+
+def left_click(event, points):
+    selected_x, selected_y = event.x, event.y
     
+    # Hitta det objekt som händelsen inträffade på
+    selected_item = event.widget.find_closest(event.x, event.y)[0]
+    
+    # Hämta koordinaterna för den valda punkten
+    selected_point_coords = event.widget.coords(selected_item)
+    selected_x, selected_y = (selected_point_coords[0] + selected_point_coords[2]) / 2, (selected_point_coords[1] + selected_point_coords[3]) / 2
+    
+    # Loopa genom alla punkter och ändra deras färg baserat på kvadranten relativt till den valda punkten
+    for point in points:
+        point_coords = event.widget.coords(point)
+        point_x, point_y = (point_coords[0] + point_coords[2]) / 2, (point_coords[1] + point_coords[3]) / 2
+        distance = ((point_x - selected_x)**2 + (point_y - selected_y)**2)**0.5
+         # Om avståndet är mindre än den angivna gränsen, fyll i punkten med gul
+        if distance <= 5:  
+            event.widget.itemconfigure(point, fill="yellow")
+        else:
+            # Annars, ändra punktens färg baserat på dess kvadrant relativt till den valda punkten
+            quadrant = get_quadrant(selected_x, selected_y, point_x, point_y)
+            if quadrant == 1:
+                event.widget.itemconfig(point, fill="red")
+            elif quadrant == 2:
+                event.widget.itemconfig(point, fill="green")
+            elif quadrant == 3:
+                event.widget.itemconfig(point, fill="purple")
+            elif quadrant == 4:
+                event.widget.itemconfig(point, fill="black")
+
+''' UPDATE POINTS FUNCTION
 def update_points(event, canvas, points):
     x = event.x - CENTER_X
     y = event.y - CENTER_Y
@@ -191,32 +222,26 @@ def update_points(event, canvas, points):
             canvas.itemconfig(points[i], fill="purple")
         elif quadrant == 4:
             canvas.itemconfig(points[i], fill="black")
+'''
 
 def highlight_nearest_points(event, canvas, points):
-    x = event.x - CENTER_X
-    y = event.y - CENTER_Y
+    selected_item = event.widget.find_closest(event.x, event.y)[0]
+    selected_point_coords = event.widget.coords(selected_item)
+    selected_x, selected_y = (selected_point_coords[0] + selected_point_coords[2]) / 2, (selected_point_coords[1] + selected_point_coords[3]) / 2
     
-    selected_point_index = None
-    for i, row in data.iterrows():
-        px = row[0] - x
-        py = row[1] - y
-        if abs(px) <= 3 and abs(py) <= 3:
-            selected_point_index = i
-            break
+    distances = []
+    for point in points:
+        point_coords = canvas.coords(point)
+        point_x, point_y = (point_coords[0] + point_coords[2]) / 2, (point_coords[1] + point_coords[3]) / 2
+        distance = ((selected_x - point_x)**2 + (selected_y - point_y)**2)**0.5
+        distances.append((point, distance))
+    distances.sort(key=lambda x: x[1])
+    nearest_points = [point[0] for point in distances[:6]]
     
-    if selected_point_index is not None:
-        distances = []
-        for i, row in data.iterrows():
-            if i != selected_point_index:
-                dx = row[0] - data.iloc[selected_point_index, 0]
-                dy = row[1] - data.iloc[selected_point_index, 1]
-                distance = (dx ** 2 + dy ** 2) ** 0.5
-                distances.append((i, distance))
-        
-        nearest_points = sorted(distances, key=lambda x: x[1])[:5]
-        
-        for index, _ in nearest_points:
-            canvas.itemconfig(points[index], fill="white")
+    # Toggle color of nearest points between pink and yellow
+    for point in points:
+        if point in nearest_points and point != selected_item:
+            event.widget.itemconfigure(point, fill="pink")
 
 def main():
     main = Tk()
@@ -225,12 +250,16 @@ def main():
     canvas = tk.Canvas(main, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
     canvas.pack()
 
+    addLegend(canvas)
     draw_axes(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
+    
     points = plot_points(canvas)
     
-    addLegend(canvas)
-    canvas.bind("<Button-3>", lambda event: highlight_nearest_points(event, canvas, points))
-    canvas.bind("<Button-1>", lambda event: update_points(event, canvas, points))
+    canvas.bind("<Button-1>", lambda event: left_click(event, points))
+    canvas.bind("<Button-3>", lambda event: highlight_nearest_points(event, points, canvas))
+
+    #canvas.bind("<Button-3>", lambda event: highlight_nearest_points(event, canvas, points))
+    #canvas.bind("<Button-1>", lambda event: update_points(event, canvas, points))
     
     main.mainloop()
 
@@ -238,5 +267,3 @@ def main():
 # Initialization code     
 if __name__ == "__main__":
     main()
-
-
