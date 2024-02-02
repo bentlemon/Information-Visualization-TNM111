@@ -35,8 +35,8 @@ import tkinter as tk
 import pandas as pd # För att installera pandas skriv "pip install pandas" i terminalen 
 
 # Läser in data
-#data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller negativa värden
-data = pd.read_csv('Infovis_task3\data2.csv', header=None) # Innehåller bara positiva värden 
+data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller negativa värden
+#data = pd.read_csv('Infovis_task3\data2.csv', header=None) # Innehåller bara positiva värden 
 
 # Global variables
 CANVAS_WIDTH = 500*1.2
@@ -46,6 +46,13 @@ CENTER_Y = CANVAS_HEIGHT / 2
 
 # vvvv Lägg till funktioner för allt här mellan! vvvv
 # -----------------------------------------------------
+def checkWhichData(data):
+    data1 = pd.read_csv('Infovis_task3\data1.csv', header=None)
+    if data.equals(data1):
+        return True
+    else:
+        return False
+
 def findHighestValue(data):
     
     # col 1 är X, col 2 är Y
@@ -92,27 +99,38 @@ def draw_axes(canvas, width, height):
             canvas.create_line(width/2, height - y_pixel, width/2 - 5, height - y_pixel, width=2) # y-axis ticks
             canvas.create_text(width/2 - 10 , height - y_pixel, text=f"{y:.1f}", anchor=tk.E)
 
-def addLegend(canvas, width, height):
+def addLegend(canvas):
     # Create the first rectangle
-    legend_rect = canvas.create_rectangle(height * 1.2, width * 0.05, width * 0.7, height * 0.25,
-                                          outline="black", width=1)
+    legend_rect = canvas.create_rectangle(CANVAS_HEIGHT - 5, CANVAS_WIDTH * 0.1, CANVAS_WIDTH * 0.75, CANVAS_HEIGHT * 0.25,
+                                          outline="gray", width=1)
 
     # Get the coordinates of the first rectangle
     x1, y1, x2, y2 = canvas.coords(legend_rect)
 
-    # Text for the legend title (centered within the first rectangle)
-    legend_title = canvas.create_text((x1 + x2) / 2, (y1 + y2) / 2 - (y2 - y1) / 4,
-                                      text="Legend", anchor=tk.CENTER, font=("Helvetica", 10, "bold"))
+    # Change the text for the legend so it matches the data
+    if (checkWhichData(data)):
+        circle_text = "a"
+        triangle_text = "b"
+        square_text = "c"
+    else:
+        circle_text = "foo"
+        triangle_text = "baz"
+        square_text = "bar"
+
+    canvas.create_oval(x1 + 10, y1 + 10, (x2+x1)/2 - 45, (y2-y1) - 5, fill="blue") # Symbol for 'c' and 'bar'
+    canvas.create_text((x2 + x1) / 2 - 30, (y2 - y1) / 2 + 30, text=circle_text, anchor="w")
+
+
+    canvas.create_polygon(x1 + 18.5, y1 + 35,  (x2+x1)/2 - 65,  y2 - 35, 
+                                       x2 - 115.2, (y2-y1) + 25, outline = "black",fill="green")
+    canvas.create_text(
+        (x2 + x1) / 2 - 30, (y2 - y1) / 2 + 60, text=triangle_text, anchor="w"
+    )
     
-    symbol_size = (x2 - x1) * 0.04
-
-    circle_a = canvas.create_oval((x1 + x2) / 2 - symbol_size, (y1 + y2) / 2, (x1 + x2) / 2 + symbol_size, (y1 + y2) / 2 + symbol_size, fill="red")
-    triangle_b = canvas.create_polygon((x1 + x2) / 2 - symbol_size, (y1 + y2) / 2 + symbol_size, (x1 + x2) / 2, (y1 + y2) / 2 + symbol_size * 2, (x1 + x2) / 2 + symbol_size, (y1 + y2) / 2 + symbol_size, fill="green")
-    square_c = canvas.create_rectangle((x1 + x2) / 2 - symbol_size, (y1 + y2) / 2 + symbol_size * 2, (x1 + x2) / 2 + symbol_size, (y1 + y2) / 2 + symbol_size * 3, fill="blue")
-
-    return legend_rect, legend_title, circle_a, triangle_b, square_c
-
-
+    canvas.create_rectangle(x1 + 10, y1 + 70, (x2+x1)/2 - 45,  (y2-y1) + 55 ,  outline = "black", fill="red")
+    canvas.create_text(
+        (x2 + x1) / 2 - 30, (y2 - y1) / 2 + 90, text=square_text, anchor="w"
+    )
 
 def plot_points(canvas):
     points = []
@@ -210,7 +228,7 @@ def main():
     draw_axes(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
     points = plot_points(canvas)
     
-    legend_elements = addLegend(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
+    addLegend(canvas)
     canvas.bind("<Button-3>", lambda event: highlight_nearest_points(event, canvas, points))
     canvas.bind("<Button-1>", lambda event: update_points(event, canvas, points))
     
