@@ -10,7 +10,7 @@
 #on Lisam. Your visualization tool should at least be able to:
 #
 # • Draw the x- and y-axis and the ticks and tick values. X
-# • Display a legend that shows the categorical information. SKA GÖRAS
+# • Display a legend that shows the categorical information. X
 # • Display the categorical information of the data points by using different shapes to represent the
 #   points. X
 # • Display the data points correctly for the axes. X
@@ -22,7 +22,7 @@
 # • When left-clicking with the mouse on a data point, a new grid system will be used where the selected point will become the new
 #  origin. The other points should get distinct colors depending on which quadrants they are located in. This new grid system is 
 #  deactivated when the user left-clicks on the selected point again. Do not forget to mark the selected point somehow, e.g., 
-#  stroke or highlight around the shape.
+#  stroke or highlight around the shape. X
 
 # • When right-clicking with the mouse (or by using any other interaction of your choice, e.g., ctrl+left-click) on a data point,
 #   the nearest five geometrically neighboring points, based on Euclidean distance, will be highlighted with a color of your choice.
@@ -34,7 +34,7 @@ from tkinter import *
 import tkinter as tk 
 import pandas as pd # För att installera pandas skriv "pip install pandas" i terminalen 
 
-# Läser in data
+# Läser in data, kommentera ut den datan du inte vill visa. Går bara att ha en data i taget!
 #data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller positiva och negativa värden
 data = pd.read_csv('Infovis_task3\data2.csv', header=None) # Innehåller bara positiva värden 
 
@@ -194,42 +194,14 @@ def left_click(event, points):
             elif quadrant == 4:
                 event.widget.itemconfig(point, fill="black")
 
-''' UPDATE POINTS FUNCTION
-def update_points(event, canvas, points):
-    x = event.x - CENTER_X
-    y = event.y - CENTER_Y
-    
-    selected_point_index = None
-    for i, row in data.iterrows():
-        px = row[0] - x
-        py = row[1] - y
-        if abs(px) <= 3 and abs(py) <= 3:
-            selected_point_index = i
-            break
-    
-    for i, row in data.iterrows():
-        px = row[0] - x
-        py = row[1] - y
-        quadrant = get_quadrant(px, py)
-        
-        if i == selected_point_index:
-            canvas.itemconfig(points[i], fill="yellow")
-        elif quadrant == 1:
-            canvas.itemconfig(points[i], fill="red")
-        elif quadrant == 2:
-            canvas.itemconfig(points[i], fill="orange")
-        elif quadrant == 3:
-            canvas.itemconfig(points[i], fill="purple")
-        elif quadrant == 4:
-            canvas.itemconfig(points[i], fill="black")
-'''
-
-def highlight_nearest_points(event, canvas, points):
+# Fixa highlighning och reset funktion 
+def highlight_nearest_points(event, points, canvas):
     selected_item = event.widget.find_closest(event.x, event.y)[0]
     selected_point_coords = event.widget.coords(selected_item)
     selected_x, selected_y = (selected_point_coords[0] + selected_point_coords[2]) / 2, (selected_point_coords[1] + selected_point_coords[3]) / 2
     
     distances = []
+    
     for point in points:
         point_coords = canvas.coords(point)
         point_x, point_y = (point_coords[0] + point_coords[2]) / 2, (point_coords[1] + point_coords[3]) / 2
@@ -257,9 +229,6 @@ def main():
     
     canvas.bind("<Button-1>", lambda event: left_click(event, points))
     canvas.bind("<Button-3>", lambda event: highlight_nearest_points(event, points, canvas))
-
-    #canvas.bind("<Button-3>", lambda event: highlight_nearest_points(event, canvas, points))
-    #canvas.bind("<Button-1>", lambda event: update_points(event, canvas, points))
     
     main.mainloop()
 
