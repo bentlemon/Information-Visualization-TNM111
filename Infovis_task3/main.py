@@ -29,10 +29,11 @@
 #   This feature will be deactivated when the user right-clicks on the selected point again. X (?)
 # ---------------------------------------------------------------------------------------------------------
 
+# För att installera pandas skriv "pip install pandas" i terminalen 
 # Importera GUI toolkitet och Pandas (Pandas bara för csv läsning)
 from tkinter import *
 import tkinter as tk 
-import pandas as pd # För att installera pandas skriv "pip install pandas" i terminalen 
+import pandas as pd 
 
 # Läser in data, kommentera ut den datan du inte vill visa. Går bara att ha en data i taget!
 #data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller positiva och negativa värden
@@ -223,7 +224,7 @@ def highlight_nearest_points(event, points, canvas, original_colors, selected_po
             if point in nearest_points and point != clicked_item:
                 original_color = original_colors.get(point, "pink")
                 event.widget.itemconfigure(point, fill=original_color)
-        # Remove the "toggled" tag
+        # Remove the "toggeld" tag
         event.widget.dtag(clicked_item, "toggled")
         # Update the selected_point to the newly clicked point
         selected_point[0] = None
@@ -233,7 +234,6 @@ def highlight_nearest_points(event, points, canvas, original_colors, selected_po
             if point in nearest_points and point != clicked_item:
                 original_colors[point] = event.widget.itemcget(point, "fill")
                 event.widget.itemconfigure(point, fill="yellow")
-        # Add the "toggled" tag
         event.widget.addtag_withtag("toggled", clicked_item)
         # Update the selected_point to the newly clicked point
         selected_point[0] = clicked_item
