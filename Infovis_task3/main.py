@@ -103,7 +103,7 @@ def draw_axes(canvas, width, height):
 def addLegend(canvas):
     # Create the first rectangle
     legend_rect = canvas.create_rectangle(CANVAS_HEIGHT - 5, CANVAS_WIDTH * 0.1, CANVAS_WIDTH * 0.75 , CANVAS_HEIGHT * 0.25,
-                                          outline="gray", width=1)
+                                          outline="gray", width=1, tags="unselectable")
 
     # Get the coordinates of the first rectangle
     x1, y1, x2, y2 = canvas.coords(legend_rect)
@@ -118,20 +118,16 @@ def addLegend(canvas):
         triangle_text = "baz"
         square_text = "bar"
 
-    canvas.create_oval(x1 + 10, y1 + 10, (x2+x1)/2 - 45, (y2-y1) - 5, fill="blue") # Symbol for 'c' and 'bar'
-    canvas.create_text((x2 + x1) / 2 - 30, (y2 - y1) / 2 + 30, text=circle_text, anchor="w")
+    canvas.create_oval(x1 + 10, y1 + 10, (x2+x1)/2 - 45, (y2-y1) - 5, fill="blue", tags="unselectable") # Symbol for 'c' and 'bar'
+    canvas.create_text((x2 + x1) / 2 - 30, (y2 - y1) / 2 + 30, text=circle_text, anchor="w", tags="unselectable")
 
 
     canvas.create_polygon(x1 + 18.5, y1 + 35,  (x2+x1)/2 - 65,  y2 - 35, 
-                                       x2 - 115.2, (y2-y1) + 25, outline = "black",fill="green")
-    canvas.create_text(
-        (x2 + x1) / 2 - 30, (y2 - y1) / 2 + 60, text=triangle_text, anchor="w"
-    )
+                                       x2 - 115.2, (y2-y1) + 25, outline = "black",fill="green", tags="unselectable")
+    canvas.create_text((x2 + x1) / 2 - 30, (y2 - y1) / 2 + 60, text=triangle_text, anchor="w", tags="unselectable")
     
-    canvas.create_rectangle(x1 + 10, y1 + 70, (x2+x1)/2 - 45,  (y2-y1) + 55 ,  outline = "black", fill="red")
-    canvas.create_text(
-        (x2 + x1) / 2 - 30, (y2 - y1) / 2 + 90, text=square_text, anchor="w"
-    )
+    canvas.create_rectangle(x1 + 10, y1 + 70, (x2+x1)/2 - 45,  (y2-y1) + 55 ,  outline = "black", fill="red", tags="unselectable")
+    canvas.create_text((x2 + x1) / 2 - 30, (y2 - y1) / 2 + 90, text=square_text, anchor="w", tags="unselectable")
 
 def plot_points(canvas):
     points = []
