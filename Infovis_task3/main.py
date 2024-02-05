@@ -36,8 +36,8 @@ import tkinter as tk
 import pandas as pd 
 
 # Läser in data, kommentera ut den datan du inte vill visa. Går bara att ha en data i taget!
-#data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller positiva och negativa värden
-data = pd.read_csv('Infovis_task3\data2.csv', header=None) # Innehåller bara positiva värden 
+data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller positiva och negativa värden
+#data = pd.read_csv('Infovis_task3\data2.csv', header=None) # Innehåller bara positiva värden 
 
 # Global variables
 CANVAS_WIDTH = 600
@@ -75,30 +75,30 @@ def draw_axes(canvas, width, height):
     min_X_value, min_Y_value = findLowestValue(data)
     
     if (max_X_value > 0 and min_X_value > 0 and max_Y_value > 0 and min_Y_value > 0): # For one quadrant (only positive values)
-        canvas.create_line(50, height - 50, width - 50, height - 50, width=2) # x-axis
+        canvas.create_line(50, height - 50, width - 50, height - 50, width=2, tags="unselectable") # x-axis
         for x in range(int(min_X_value), int(max_X_value) + 1, 10):
             x_pixel = int((x - min_X_value) / (max_X_value - min_X_value) * (width - 100) + 50)
-            canvas.create_line(x_pixel, height - 50, x_pixel, height - 45, width=2) # x-axis ticks
-            canvas.create_text(x_pixel, height - 35, text=f"{x:.1f}", anchor=tk.N)
+            canvas.create_line(x_pixel, height - 50, x_pixel, height - 45, width=2, tags="unselectable") # x-axis ticks
+            canvas.create_text(x_pixel, height - 35, text=f"{x:.1f}", anchor=tk.N, tags="unselectable")
 
-        canvas.create_line(50, height - 50, 50, 50, width=2)
+        canvas.create_line(50, height - 50, 50, 50, width=2, tags="unselectable")
         for y in range(int(min_Y_value + 1), int(max_Y_value) + 1, 10): # y-axis
             y_pixel = int((y - min_Y_value) / (max_Y_value - min_Y_value) * (height - 100) + 50)
-            canvas.create_line(50, height - y_pixel, 55, height - y_pixel, width=2) # y-axis ticks
-            canvas.create_text(35, height - y_pixel, text=f"{y:.1f}", anchor=tk.E)
+            canvas.create_line(50, height - y_pixel, 55, height - y_pixel, width=2, tags="unselectable") # y-axis ticks
+            canvas.create_text(35, height - y_pixel, text=f"{y:.1f}", anchor=tk.E, tags="unselectable")
 
     elif (min_X_value < 0 or min_Y_value < 0): # For 4 quadrant (pos. and neg. values)
-        canvas.create_line(50, height/2, width - 50, height/2 , width=2) # x-axis
+        canvas.create_line(50, height/2, width - 50, height/2 , width=2, tags="unselectable") # x-axis
         for x in range(int(min_X_value), int(max_X_value) + 1, 10):
             x_pixel = int((x - min_X_value) / (max_X_value - min_X_value) * (width - 100) + 50)
-            canvas.create_line(x_pixel, height/2 , x_pixel, height/2 + 5, width=2) # x-axis ticks
-            canvas.create_text(x_pixel, height/2 + 10, text=f"{x:.1f}", anchor=tk.N)
+            canvas.create_line(x_pixel, height/2 , x_pixel, height/2 + 5, width=2, tags="unselectable") # x-axis ticks
+            canvas.create_text(x_pixel, height/2 + 10, text=f"{x:.1f}", anchor=tk.N, tags="unselectable")
 
-        canvas.create_line(width/2, height - 50, width/2, 50, width=2)
+        canvas.create_line(width/2, height - 50, width/2, 50, width=2, tags="unselectable")
         for y in range(int(min_Y_value), int(max_Y_value) + 1, 10): # y-axis
             y_pixel = int((y - min_Y_value) / (max_Y_value - min_Y_value) * (height - 100) + 50)
-            canvas.create_line(width/2, height - y_pixel, width/2 - 5, height - y_pixel, width=2) # y-axis ticks
-            canvas.create_text(width/2 - 10 , height - y_pixel, text=f"{y:.1f}", anchor=tk.E)
+            canvas.create_line(width/2, height - y_pixel, width/2 - 5, height - y_pixel, width=2, tags="unselectable") # y-axis ticks
+            canvas.create_text(width/2 - 10 , height - y_pixel, text=f"{y:.1f}", anchor=tk.E, tags="unselectable")
 
 def addLegend(canvas):
     # Create the first rectangle
@@ -165,26 +165,38 @@ def get_quadrant(selected_x, selected_y, x, y):
     else:
         return 4
 
-def left_click(event, points):
+def left_click(event, points, selected_info, original_colors):
+        # Check if the clicked item has the "unselectable" tag
+    if "unselectable" in event.widget.gettags(event.widget.find_closest(event.x, event.y)[0]):
+        return  # Do nothing for unselectable items
+    
+    clicked_item = event.widget.find_closest(event.x, event.y)[0]
+
+    # Check if the clicked point is the same as the currently selected point
+    if selected_info[0] == clicked_item:
+        # Reset colors to the original state
+        for point in points:
+            original_color = original_colors.get(point, "pink")
+            event.widget.itemconfigure(point, fill=original_color)
+        # Reset the selected_info to indicate no current selection
+        selected_info[0] = None
+        return  # Exit the function, as we've reset the colors
+
+    # Assign a specific color to the selected point
+    selected_color = "pink"  
+    event.widget.itemconfigure(clicked_item, fill=selected_color)
+
+    # The rest of your existing code for updating colors based on quadrant
     selected_x, selected_y = event.x, event.y
-    
-    # Hitta det objekt som händelsen inträffade på
-    selected_item = event.widget.find_closest(event.x, event.y)[0]
-    
-    # Hämta koordinaterna för den valda punkten
-    selected_point_coords = event.widget.coords(selected_item)
-    selected_x, selected_y = (selected_point_coords[0] + selected_point_coords[2]) / 2, (selected_point_coords[1] + selected_point_coords[3]) / 2
-    
-    # Loopa genom alla punkter och ändra deras färg baserat på kvadranten relativt till den valda punkten
     for point in points:
+        if point == clicked_item:
+            continue  # Skip the selected point since its color is already set
         point_coords = event.widget.coords(point)
         point_x, point_y = (point_coords[0] + point_coords[2]) / 2, (point_coords[1] + point_coords[3]) / 2
-        distance = ((point_x - selected_x)**2 + (point_y - selected_y)**2)**0.5
-         # Om avståndet är mindre än den angivna gränsen, fyll i punkten med gul
-        if distance <= 5:  
+        distance = ((point_x - selected_x) ** 2 + (point_y - selected_y) ** 2) ** 0.5
+        if distance <= 5:
             event.widget.itemconfigure(point, fill="yellow")
         else:
-            # Annars, ändra punktens färg baserat på dess kvadrant relativt till den valda punkten
             quadrant = get_quadrant(selected_x, selected_y, point_x, point_y)
             if quadrant == 1:
                 event.widget.itemconfig(point, fill="red")
@@ -195,8 +207,14 @@ def left_click(event, points):
             elif quadrant == 4:
                 event.widget.itemconfig(point, fill="black")
 
-# Fixa highlighning och reset funktion 
+    # Store the current selected point
+    selected_info[0] = clicked_item
+
 def highlight_nearest_points(event, points, canvas, original_colors, selected_point):
+    # Check if the clicked item has the "unselectable" tag
+    if "unselectable" in event.widget.gettags(event.widget.find_closest(event.x, event.y)[0]):
+        return  # Do nothing for unselectable items
+
     clicked_item = event.widget.find_closest(event.x, event.y)[0]
     clicked_point_coords = event.widget.coords(clicked_item)
     clicked_x = (clicked_point_coords[0] + clicked_point_coords[2]) / 2
@@ -213,7 +231,7 @@ def highlight_nearest_points(event, points, canvas, original_colors, selected_po
     nearest_points = [point[0] for point in distances[:6]]
 
     # Reset colors of the previously selected point
-    if selected_point[0] is not None and selected_point[0] != clicked_item:
+    if selected_point[0] is not None :
         original_color = original_colors.get(selected_point[0], "pink")
         event.widget.itemconfigure(selected_point[0], fill=original_color)
 
@@ -221,20 +239,24 @@ def highlight_nearest_points(event, points, canvas, original_colors, selected_po
     if "toggled" in event.widget.gettags(clicked_item):
         # Reset colors on every right-click
         for point in points:
-            if point in nearest_points and point != clicked_item:
+            if point in nearest_points:
                 original_color = original_colors.get(point, "pink")
                 event.widget.itemconfigure(point, fill=original_color)
-        # Remove the "toggeld" tag
+        # Remove the "toggled" tag
         event.widget.dtag(clicked_item, "toggled")
         # Update the selected_point to the newly clicked point
         selected_point[0] = None
     else:
         # Store the original color before toggling
         for point in points:
-            if point in nearest_points and point != clicked_item:
+            if point in nearest_points:
                 original_colors[point] = event.widget.itemcget(point, "fill")
-                event.widget.itemconfigure(point, fill="yellow")
+                if point == clicked_item:
+                    event.widget.itemconfigure(point, fill="pink")
+                else:
+                    event.widget.itemconfigure(point, fill="yellow")
         event.widget.addtag_withtag("toggled", clicked_item)
+       
         # Update the selected_point to the newly clicked point
         selected_point[0] = clicked_item
 
@@ -251,8 +273,13 @@ def main():
     points = plot_points(canvas)
     
     original_colors = {}
+    # Capture original colors when creating points
+    for point in points:
+        original_colors[point] = canvas.itemcget(point, "fill")
+
     selected_point = [None]
-    canvas.bind("<Button-1>", lambda event: left_click(event, points))
+    selected_info = [None, None] 
+    canvas.bind("<Button-1>", lambda event: left_click(event, points, selected_info, original_colors))
     canvas.bind("<Button-3>", lambda event: highlight_nearest_points(event, points, canvas, original_colors, selected_point))
     
     main.mainloop()
