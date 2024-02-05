@@ -26,7 +26,7 @@
 
 # • When right-clicking with the mouse (or by using any other interaction of your choice, e.g., ctrl+left-click) on a data point,
 #   the nearest five geometrically neighboring points, based on Euclidean distance, will be highlighted with a color of your choice.
-#   This feature will be deactivated when the user right-clicks on the selected point again.
+#   This feature will be deactivated when the user right-clicks on the selected point again. X (?)
 # ---------------------------------------------------------------------------------------------------------
 
 # Importera GUI toolkitet och Pandas (Pandas bara för csv läsning)
@@ -195,25 +195,48 @@ def left_click(event, points):
                 event.widget.itemconfig(point, fill="black")
 
 # Fixa highlighning och reset funktion 
-def highlight_nearest_points(event, points, canvas):
-    selected_item = event.widget.find_closest(event.x, event.y)[0]
-    selected_point_coords = event.widget.coords(selected_item)
-    selected_x, selected_y = (selected_point_coords[0] + selected_point_coords[2]) / 2, (selected_point_coords[1] + selected_point_coords[3]) / 2
-    
+def highlight_nearest_points(event, points, canvas, original_colors, selected_point):
+    clicked_item = event.widget.find_closest(event.x, event.y)[0]
+    clicked_point_coords = event.widget.coords(clicked_item)
+    clicked_x = (clicked_point_coords[0] + clicked_point_coords[2]) / 2
+    clicked_y = (clicked_point_coords[1] + clicked_point_coords[3]) / 2
+
     distances = []
-    
+
     for point in points:
         point_coords = canvas.coords(point)
         point_x, point_y = (point_coords[0] + point_coords[2]) / 2, (point_coords[1] + point_coords[3]) / 2
-        distance = ((selected_x - point_x)**2 + (selected_y - point_y)**2)**0.5
+        distance = ((clicked_x - point_x) ** 2 + (clicked_y - point_y) ** 2) ** 0.5
         distances.append((point, distance))
     distances.sort(key=lambda x: x[1])
     nearest_points = [point[0] for point in distances[:6]]
-    
-    # Toggle color of nearest points between pink and yellow
-    for point in points:
-        if point in nearest_points and point != selected_item:
-            event.widget.itemconfigure(point, fill="pink")
+
+    # Reset colors of the previously selected point
+    if selected_point[0] is not None and selected_point[0] != clicked_item:
+        original_color = original_colors.get(selected_point[0], "pink")
+        event.widget.itemconfigure(selected_point[0], fill=original_color)
+
+    # Check if the clicked point has a "toggled" tag
+    if "toggled" in event.widget.gettags(clicked_item):
+        # Reset colors on every right-click
+        for point in points:
+            if point in nearest_points and point != clicked_item:
+                original_color = original_colors.get(point, "pink")
+                event.widget.itemconfigure(point, fill=original_color)
+        # Remove the "toggled" tag
+        event.widget.dtag(clicked_item, "toggled")
+        # Update the selected_point to the newly clicked point
+        selected_point[0] = None
+    else:
+        # Store the original color before toggling
+        for point in points:
+            if point in nearest_points and point != clicked_item:
+                original_colors[point] = event.widget.itemcget(point, "fill")
+                event.widget.itemconfigure(point, fill="yellow")
+        # Add the "toggled" tag
+        event.widget.addtag_withtag("toggled", clicked_item)
+        # Update the selected_point to the newly clicked point
+        selected_point[0] = clicked_item
 
 def main():
     main = Tk()
@@ -227,8 +250,10 @@ def main():
     
     points = plot_points(canvas)
     
+    original_colors = {}
+    selected_point = [None]
     canvas.bind("<Button-1>", lambda event: left_click(event, points))
-    canvas.bind("<Button-3>", lambda event: highlight_nearest_points(event, points, canvas))
+    canvas.bind("<Button-3>", lambda event: highlight_nearest_points(event, points, canvas, original_colors, selected_point))
     
     main.mainloop()
 
