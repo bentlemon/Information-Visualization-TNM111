@@ -1,5 +1,5 @@
 # BORDE BARA VARA ATT KÖRA!!! Det som jag skriver här efter är om man behöver göra ett nytt projekt
-#När man är i "Infovis_task3" foldern skriv: .venv\Scripts \ a ctivate i cmd för att få den att aktivera 
+#När man är i "Infovis_task3" foldern skriv: .venv\Scripts \ activate i cmd för att få den att aktivera 
 #virtuella miljön (virtual enviroment). Är korrekt om det står: (.venv) C:\Users\mahon\Desktop\Infovis_task3> i terminalen
 #Jag följde 2 olika tutorials: 
 #https://www.youtube.com/watch?v=GrAYoJUQolo (för att starta upp miljön)
@@ -36,7 +36,7 @@ import tkinter as tk
 import pandas as pd 
 
 # Läser in data, kommentera ut den datan du inte vill visa. Går bara att ha en data i taget!
-data = pd.read_csv('Infovis_task3\data1.csv', header=None) # Innehåller positiva och negativa värden
+data = pd.read_csv('Assignment2\data1.csv', header=None) # Innehåller positiva och negativa värden
 #data = pd.read_csv('Infovis_task3\data2.csv', header=None) # Innehåller bara positiva värden 
 
 # Global variables
