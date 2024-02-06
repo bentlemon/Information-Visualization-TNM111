@@ -68,7 +68,7 @@ function focusPlusContext(data) {
     /**
      * Task 4 - Define the brush for the context graph (Navigation)
      */
-    var brush = d3.brushX().extent([0, 0], [width, height2]).on("brush", brushed());
+    var brush = d3.brushX().extent([[0, 0], [width, height2]]).on("brush", brushed());
 
 
     //Setting scale parameters
@@ -87,8 +87,8 @@ function focusPlusContext(data) {
     yScale.domain([minMag, maxMag]);
     focus.select(".axis--x").call(xAxis);
 
-    navxScale.domain([minDate, maxDate]);
-    navyScale.domain([minMag, maxMag]);
+    navXScale.domain([minDate, maxDate]);
+    navYScale.domain([minMag, maxMag]);
     context.select(".axis--x").call(navXAxis);
     
 
