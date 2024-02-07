@@ -85,11 +85,9 @@ function focusPlusContext(data) {
      */
     xScale.domain([minDate, maxDate]);
     yScale.domain([minMag, maxMag]);
-    focus.select(".axis--x").call(xAxis);
 
     navXScale.domain([minDate, maxDate]);
     navYScale.domain([minMag, maxMag]);
-    context.select(".axis--x").call(navXAxis);
     
 
     //<---------------------------------------------------------------------------------------------------->
@@ -107,14 +105,18 @@ function focusPlusContext(data) {
     context.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + height2 + ")")
-        //here..
         .call(navXAxis)
 
     /**
      * Task 7 - Plot the small dots on the context graph.
      */
+
     small_points = dots.selectAll("dot")
-        //here...
+        // Task 7
+        .data(data.features)
+        .enter()
+        .append("circle")
+        .attr("class", "dotContext")
         .filter(function (d) { return d.properties.EQ_PRIMARY != null })
         .attr("cx", function (d) {
             return navXScale(parseDate(d.properties.Date));
@@ -127,7 +129,10 @@ function focusPlusContext(data) {
       * Task 8 - Call plot function.
       * plot(points,nr,nr) try to use different numbers for the scaling.
       */
-
+     var points = new Points();
+     var nr1 = 100;
+     var nr2 = 2;
+     points.plot(small_points, nr1, nr2);
 
     //<---------------------------------------------------------------------------------------------------->
 
@@ -143,9 +148,13 @@ function focusPlusContext(data) {
      * Task 10 - Call x and y axis
      */
     focus.append("g")
-    //here..
+    .attr("class", "axis axis--x")
+    .attr("transform", "translate(0," + height + ")") // Transforming
+    .call(xAxis);
+
     focus.append("g")
-    //here..
+    .attr("class", "axis axis--y")
+    .call(yAxis);
 
     //Add y axis label to the scatter plot
     d3.select(".legend")
@@ -165,7 +174,11 @@ function focusPlusContext(data) {
      * Task 11 - Plot the dots on the focus graph.
      */
     selected_dots = dots.selectAll("dot")
-        //here..
+        .data(data.features) 
+        .enter() // give the new data
+        .append("circle")
+        .attr("class", "dot") // give class "dot" too every circle
+        .attr("opacity", 0.7) 
         .filter(function (d) { return d.properties.EQ_PRIMARY != null })
         .attr("cx", function (d) {
             return xScale(parseDate(d.properties.Date));
@@ -178,6 +191,8 @@ function focusPlusContext(data) {
      * Task 12 - Call plot function
      * plot(points,nr,nr) no need to send any integers!
      */
+     points.plot(selected_dots, 1, 2);
+
 
     //<---------------------------------------------------------------------------------------------------->
 
@@ -251,7 +266,10 @@ function focusPlusContext(data) {
      * implmented if we put the brush before.
      */
 
-    //here..
+       context.append("g")
+       .attr("class", "brush")
+       .call(d3.brush().on("brush", brushed))
+       .call(d3.brush().move, xScale.range());
 
     //<---------------------------------------------------------------------------------------------------->
 
@@ -283,7 +301,7 @@ function focusPlusContext(data) {
             /**
              * Remove comment for updating dots on the map.
              */
-            //curr_points_view = world_map.change_map_points(curr_view_erth)
+            curr_points_view = world_map.change_map_points(curr_view_erth)
         }
     }
 
