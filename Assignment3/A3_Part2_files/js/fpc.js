@@ -258,7 +258,7 @@ function focusPlusContext(data) {
     //Brush function for filtering through the data.
     function brushed(){
         //Function that updates scatter plot and map each time brush is used
-        var s = d3.event.selection || navXScale.range();
+        var s = d3.event?.selection || navXScale.range();
         xScale.domain(s.map(navXScale.invert, navXScale));
         focus.selectAll(".dot")
             .filter(function (d) { return d.properties.EQ_PRIMARY != null })
@@ -271,7 +271,7 @@ function focusPlusContext(data) {
 
         focus.select(".axis--x").call(xAxis);
 
-        if (d3.event.type == "end") {
+        if (d3.event?.type == "end") {
             var curr_view_erth = []
             d3.selectAll(".dot").each(
                 function (d, i) {
