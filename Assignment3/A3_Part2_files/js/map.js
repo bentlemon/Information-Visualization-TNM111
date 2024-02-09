@@ -47,10 +47,10 @@ function worldMap(data) {
      * {point:function.}
      * Create another variable names d3geoPath to project this transformation to it.
      */
+    
     //Transforming to the specific projection
-
     var transform = d3.geoTransform({point:projectPointsOnMap});
-    var d3path = d3.geoPath().projection(transform);
+    var d3path = d3.geoPath().projection(transform); // projection of the transform
 
     // similar to projectPoint this function converts lat/long to
     //svg coordinates except that it accepts a point from our

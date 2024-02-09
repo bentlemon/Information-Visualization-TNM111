@@ -46,11 +46,14 @@ function focusPlusContext(data) {
     /**
      * Task 1 - Parse date with timeParse to year-month-day
      */
+     // D3 is a JavaScript library for producing dynamic, 
+     // interactive data visualizations in web browsers
+     //
      // Created a variable to parse the date using timeParse
      var parseDate = d3.timeParse("%Y-%m-%d");
 
     /**
-     * Task 2 - Define scales and axes for scatterplot
+     * Task 2 - Define scales and axes for scatterplot (focus area)
      */
     var xScale = d3.scaleTime().range([0, width]);
     var yScale = d3.scaleLinear().range([height, 0]);
@@ -63,13 +66,17 @@ function focusPlusContext(data) {
     var navXScale = d3.scaleTime().range([0, width]);
     var navYScale = d3.scaleLinear().range([height2, 0]);
     var navXAxis = d3.axisBottom(navXScale);
-   
 
     /**
      * Task 4 - Define the brush for the context graph (Navigation)
      */
-    var brush = d3.brushX().extent([[0, 0], [width, height2]]).on("brush", brushed());
-
+    // Creates an x-axis brush for brushing.
+    // This sets up an event listener for the "brush" event, which triggers the function
+    // brushed() when the brush is used. 
+    // .extent([[0, 0], [width, height2]]): This sets the brush extent, defining the region where
+    // the brush can be applied. In this case, it's set to start from [0, 0] (top-left corner) and 
+    // extend to [width, height2] (bottom-right corner).
+    var brush = d3.brushX().extent([[0, 0], [width, height2]]).on("brush", brushed);
 
     //Setting scale parameters
     var maxDate = d3.max(data.features, function (d) { return parseDate(d.properties.Date) });
@@ -83,13 +90,14 @@ function focusPlusContext(data) {
     /**
      * Task 5 - Set the axes scales, both for focus and context.
      */
+    // .domain() method is used to set or retrieve the input 
+    // data domain for a scale
     xScale.domain([minDate, maxDate]);
     yScale.domain([minMag, maxMag]);
 
     navXScale.domain([minDate, maxDate]);
     navYScale.domain([minMag, maxMag]);
     
-
     //<---------------------------------------------------------------------------------------------------->
 
     /**
@@ -101,30 +109,45 @@ function focusPlusContext(data) {
 
     /**
     * Task 6 - Call the navigation axis on context.
-    */
-    context.append("g")
-        .attr("class", "axis axis--x")
-        .attr("transform", "translate(0," + height2 + ")")
-        .call(navXAxis)
+    */ //append() --> create new element svg
+    context.append("g")                  // Append a <g> element
+    .attr("class", "axis axis--x")   // Set the class attribute to "axis axis--x"
+    .attr("transform", "translate(0," + height2 + ")")  // Translate the group to the bottom of the visualization
+    .call(navXAxis);                  // Call the function navXAxis to generate the x-axis within the group
 
     /**
      * Task 7 - Plot the small dots on the context graph.
      */
 
-    small_points = dots.selectAll("dot")
-        // Task 7
-        .data(data.features)
-        .enter()
-        .append("circle")
-        .attr("class", "dotContext")
-        .filter(function (d) { return d.properties.EQ_PRIMARY != null })
-        .attr("cx", function (d) {
-            return navXScale(parseDate(d.properties.Date));
-        })
-        .attr("cy", function (d) {
-            return navYScale(d.properties.EQ_PRIMARY);
-        });
+// Select all existing "dot" elements within the 'dots' selection
+small_points = dots.selectAll("dot")
+    
+    // Task 7: Bind earthquake data to the selection
+    .data(data.features)
+    
+    // For each data point that doesn't have a corresponding element in the DOM, create a new 'circle' element
+    .enter()
+    
+    // Append a 'circle' element for each data point
+    .append("circle")
+    
+    // Set the class attribute of the circles to "dotContext" for styling
+    .attr("class", "dotContext")
+    
+    // Filter the data points to exclude those with null values in the 'EQ_PRIMARY' property
+    .filter(function (d) { return d.properties.EQ_PRIMARY != null })
+    
+    // Set the x-coordinate of the circle based on the earthquake date, scaled using 'navXScale'
+    .attr("cx", function (d) {
+        return navXScale(parseDate(d.properties.Date));
+    })
+    
+    // Set the y-coordinate of the circle based on the earthquake magnitude, scaled using 'navYScale'
+    .attr("cy", function (d) {
+        return navYScale(d.properties.EQ_PRIMARY);
+    });
 
+    
      /**
       * Task 8 - Call plot function.
       * plot(points,nr,nr) try to use different numbers for the scaling.
@@ -178,11 +201,16 @@ function focusPlusContext(data) {
         .enter() // give the new data
         .append("circle")
         .attr("class", "dot") // give class "dot" too every circle
-        .attr("opacity", 0.7) 
+        .attr("opacity", 0.7) // Set opacity
+        // Filter the data points to exclude those with null values in the 'EQ_PRIMARY' property
         .filter(function (d) { return d.properties.EQ_PRIMARY != null })
+        // Set the x-coordinate of each circle based on the earthquake date, 
+        // scaled using 'xScale'
         .attr("cx", function (d) {
             return xScale(parseDate(d.properties.Date));
         })
+        // Set the y-coordinate of each circle based on the earthquake 
+        // magnitude, scaled using 'yScale'
         .attr("cy", function (d) {
             return yScale(d.properties.EQ_PRIMARY);
         });
@@ -193,7 +221,6 @@ function focusPlusContext(data) {
      */
      points.plot(selected_dots, 1, 2);
 
-
     //<---------------------------------------------------------------------------------------------------->
 
     //Mouseover function
@@ -201,7 +228,7 @@ function focusPlusContext(data) {
     //Mouseout function
     mouseOut(selected_dots);
 
-    //Mouse over function
+    // DETAILS ON DEMAND - Mouse over function
     function mouseOver(selected_dots){
         selected_dots
         .on("mouseover",function(d){
@@ -274,10 +301,14 @@ function focusPlusContext(data) {
     //<---------------------------------------------------------------------------------------------------->
 
     //Brush function for filtering through the data.
+    // .? is a null check
     function brushed(){
         //Function that updates scatter plot and map each time brush is used
         var s = d3.event?.selection || navXScale.range();
+        // Update the domain of the main x-axis scale based on the brush selection
         xScale.domain(s.map(navXScale.invert, navXScale));
+
+        // Update the positions of the circles in the scatter plot based on the new xScale domain
         focus.selectAll(".dot")
             .filter(function (d) { return d.properties.EQ_PRIMARY != null })
             .attr("cx", function (d) {
@@ -287,12 +318,17 @@ function focusPlusContext(data) {
                 return yScale(d.properties.EQ_PRIMARY);
             })
 
+        // Update the x-axis in the main scatter plot
         focus.select(".axis--x").call(xAxis);
 
+        // Check if the brush event type is "end"    
         if (d3.event?.type == "end") {
             var curr_view_erth = []
+
+            // Iterate through all circles in the scatter plot
             d3.selectAll(".dot").each(
                 function (d, i) {
+                    // Check if the date of the earthquake falls within the current xScale domain
                     if (parseDate(d.properties.Date) >= xScale.domain()[0] &&
                         parseDate(d.properties.Date) <= xScale.domain()[1]) {
                         curr_view_erth.push(d.id.toString());
