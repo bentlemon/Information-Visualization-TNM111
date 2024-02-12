@@ -119,8 +119,8 @@ function focusPlusContext(data) {
      * Task 7 - Plot the small dots on the context graph.
      */
 
-// Select all existing "dot" elements within the 'dots' selection
-small_points = dots.selectAll("dot")
+    // Select all existing "dot" elements within the 'dots' selection
+    small_points = dots.selectAll("dot")
     
     // Task 7: Bind earthquake data to the selection
     .data(data.features)
@@ -219,7 +219,7 @@ small_points = dots.selectAll("dot")
      * Task 12 - Call plot function
      * plot(points,nr,nr) no need to send any integers!
      */
-     points.plot(selected_dots, 1, 2);
+     points.plot(selected_dots);
 
     //<---------------------------------------------------------------------------------------------------->
 
