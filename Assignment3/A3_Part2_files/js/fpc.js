@@ -295,8 +295,8 @@ small_points = dots.selectAll("dot")
 
        context.append("g")
        .attr("class", "brush")
-       .call(d3.brush().on("brush", brushed))
-       .call(d3.brush().move, xScale.range());
+       .call(brush)
+       .call(brush.move, xScale.range());
 
     //<---------------------------------------------------------------------------------------------------->
 
@@ -304,7 +304,7 @@ small_points = dots.selectAll("dot")
     // .? is a null check
     function brushed(){
         //Function that updates scatter plot and map each time brush is used
-        var s = d3.event?.selection || navXScale.range();
+        var s = d3.event.selection || navXScale.range();
         // Update the domain of the main x-axis scale based on the brush selection
         xScale.domain(s.map(navXScale.invert, navXScale));
 
@@ -322,7 +322,7 @@ small_points = dots.selectAll("dot")
         focus.select(".axis--x").call(xAxis);
 
         // Check if the brush event type is "end"    
-        if (d3.event?.type == "end") {
+        if (d3.event.type == "end") {
             var curr_view_erth = []
 
             // Iterate through all circles in the scatter plot
