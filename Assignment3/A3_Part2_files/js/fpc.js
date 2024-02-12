@@ -76,7 +76,7 @@ function focusPlusContext(data) {
     // .extent([[0, 0], [width, height2]]): This sets the brush extent, defining the region where
     // the brush can be applied. In this case, it's set to start from [0, 0] (top-left corner) and 
     // extend to [width, height2] (bottom-right corner).
-    var brush = d3.brushX().extent([[0, 0], [width, height2]]).on("brush", brushed);
+    var brush = d3.brushX().extent([[0, 0], [width, height2]]).on("brush end", brushed);
 
     //Setting scale parameters
     var maxDate = d3.max(data.features, function (d) { return parseDate(d.properties.Date) });
