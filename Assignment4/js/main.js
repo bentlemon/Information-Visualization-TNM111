@@ -1,13 +1,13 @@
 // Array för att lagra alla filnamn
 var files = [
-    "starwars-episode-1-interactions-allCharacters.json",
-    "starwars-episode-2-interactions-allCharacters.json",
-    "starwars-episode-3-interactions-allCharacters.json",
-    "starwars-episode-4-interactions-allCharacters.json",
-    "starwars-episode-5-interactions-allCharacters.json",
-    "starwars-episode-6-interactions-allCharacters.json",
-    "starwars-episode-7-interactions-allCharacters.json",
-    "starwars-full-interactions-allCharacters.json"
+    "./data/starwars-episode-1-interactions-allCharacters.json",
+    "./data/starwars-episode-2-interactions-allCharacters.json",
+    "./data/starwars-episode-3-interactions-allCharacters.json",
+    "./data/starwars-episode-4-interactions-allCharacters.json",
+    "./data/starwars-episode-5-interactions-allCharacters.json",
+    "./data/starwars-episode-6-interactions-allCharacters.json",
+    "./data/starwars-episode-7-interactions-allCharacters.json",
+    "./data/starwars-full-interactions-allCharacters.json"
 ];
 
 // Läs in alla JSON-filer asynkront
