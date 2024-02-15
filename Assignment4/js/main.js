@@ -68,6 +68,7 @@ fetchAllData().then(data => {
 });*/
 
 
+
 var canvas = d3.select("#visualization"),
 width = canvas.attr("width"),
 height = canvas.attr("height"),
@@ -91,27 +92,52 @@ d.x = Math.random() *width;
 d.y = Math.random() *height;
 });*/
 
-d3.json("starwars-episode-1-interactions-allCharacters.json", function (err, graph) {
-  if (err) throw err;
 
-  simulation
-    .nodes(graph.nodes)
+fetch('./data/starwars-episode-1-interactions-allCharacters')
+  .then(response => response.json())
+  .then(data => {
+    // Gör något med den hämtade datan
+    simulation
+    .nodes(data.nodes)
     .on("tick", update)
     .force("link")
-    .links(graph.links);
+    .links(data.links);
 
     function update() {
       ctx.clearRect(0, 0, width, height);
       
       ctx.beginPath();
-      graph.links.forEach(drawLink);
+      data.links.forEach(drawLink);
       ctx.stroke();
       
       ctx.beginPath();
-      graph.nodes.forEach(drawNode);
+      data.nodes.forEach(drawNode);
+      ctx.fill();
+    }})
+  .catch(error => {
+    console.error('Det uppstod ett fel:', error);
+  });/*
+d3.json("../data/starwars-episode-1-interactions-allCharacters", function (err, data) {
+  if (err) throw err;
+
+  simulation
+    .nodes(data.nodes)
+    .on("tick", update)
+    .force("link")
+    .links(data.links);
+
+    function update() {
+      ctx.clearRect(0, 0, width, height);
+      
+      ctx.beginPath();
+      data.links.forEach(drawLink);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      data.nodes.forEach(drawNode);
       ctx.fill();
       }
-});
+});*/
 
 
 function drawNode(d) {
@@ -123,5 +149,8 @@ function drawLink(l) {
   ctx.moveTo(l.source.x, l.source.y);
   ctx.lineTo(l.target.x, l.target.y);
 }
+
+
+
 
 
