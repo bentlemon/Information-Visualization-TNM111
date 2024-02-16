@@ -67,7 +67,7 @@ fetchAllData().then(data => {
   console.error('Error:', error);
 });*/
 
-
+/*
 
 var canvas = d3.select("#visualization"),
 width = canvas.attr("width"),
@@ -91,7 +91,7 @@ simulation = d3.forceSimulation()
 d.x = Math.random() *width;
 d.y = Math.random() *height;
 });*/
-
+/*
 
 fetch('./data/starwars-episode-1-interactions-allCharacters')
   .then(response => response.json())
@@ -116,7 +116,8 @@ fetch('./data/starwars-episode-1-interactions-allCharacters')
     }})
   .catch(error => {
     console.error('Det uppstod ett fel:', error);
-  });/*
+  });*/
+  /*
 d3.json("../data/starwars-episode-1-interactions-allCharacters", function (err, data) {
   if (err) throw err;
 
@@ -139,7 +140,7 @@ d3.json("../data/starwars-episode-1-interactions-allCharacters", function (err, 
       }
 });*/
 
-
+/*
 function drawNode(d) {
   ctx.moveTo(d.x, d.y);
   ctx.arc(d.x, d.y, r, 0, 2* Math.PI);
@@ -150,7 +151,63 @@ function drawLink(l) {
   ctx.lineTo(l.target.x, l.target.y);
 }
 
+*/
 
+var canvas = d3.select("#visualization"),
+    width = +canvas.attr("width"),
+    height = +canvas.attr("height"),
+    r = 3,
+    ctx = canvas.node().getContext("2d"),
+    simulation = d3.forceSimulation(); // Flyttar definitionen hit
+
+// Definiera krafter för simuleringen
+simulation
+  .force("x", d3.forceX(width / 2))
+  .force("y", d3.forceY(height / 2))
+  .force("collide", d3.forceCollide(r + 1))
+  .force("charge", d3.forceManyBody().strength(-20))
+  .force("link", d3.forceLink().id(function(d) { return d.name; }));
+
+// Hämta data och uppdatera visualiseringen
+fetch('./data/starwars-episode-1-interactions-allCharacters.json')
+  .then(response => response.json())
+  .then(data => {
+    simulation
+      .nodes(data.nodes)
+      .on("tick", update)
+      .force("link")
+      .links(data.links);
+
+    function update() {
+      ctx.clearRect(0, 0, width, height);
+
+      ctx.beginPath();
+      data.links.forEach(drawLink);
+      ctx.stroke();
+
+      ctx.beginPath();
+      data.nodes.forEach(drawNode);
+      ctx.fill();
+    }
+  })
+  .catch(error => {
+    console.error('Det uppstod ett fel:', error);
+  });
+
+// Hjälpfunktioner för att rita noderna och länkarna
+function drawNode(d) {
+  ctx.beginPath();
+  ctx.fillStyle = d.colour;
+  ctx.arc(d.x, d.y, r, 0, 2 * Math.PI);
+  ctx.fill();
+}
+
+function drawLink(l) {
+  ctx.beginPath();
+  ctx.moveTo(l.source.x, l.source.y);
+  ctx.lineTo(l.target.x, l.target.y);
+  ctx.stroke();
+}
 
 
 
