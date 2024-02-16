@@ -152,83 +152,73 @@ function drawLink(l) {
 }
 
 */
-function createNetworkDiagram() {
-  var width = 600; // Definiera bredden för diagrammet
-  var height = 400; // Definiera höjden för diagrammet
 
-  // Skapa en SVG-container
+let data = await d3.json("./data/starwars-episode-1-interactions-allCharacters.json").catch(function(error){ console.log(error)});
+
+function createNetworkDiagram(data) {
+  var width = 600;
+  var height = 400;
+
   var svg = d3.select("#visualization")
               .append("svg")
               .attr("width", width)
               .attr("height", height);
-// Läser in data och skapar visualiseringen
-d3.json("./data/starwars-episode-1-interactions-allCharacters.json").then(function(data) {
-  console.log("Noder:", data.nodes);
-  console.log("Länkar:", data.links);
 
-  // Filtrera bort isolerade noder
-  var filteredNodes = data.nodes.filter(node => {
-    // Kontrollera om noden har länkar
-    return data.links.some(link => link.source === node || link.target === node);
-  });
-
-  console.log("Filtrerade noder:", filteredNodes);
-
-  // Skapa linjer för länkarna
-  var link = svg.selectAll("link")
-                .data(data.links.filter(link => {
-                  // Hoppa över länkar som refererar till icke-existerande noder
-                  return filteredNodes.some(node => node === link.source) &&
-                         filteredNodes.some(node => node === link.target);
-                }))
-                console.log(data.links.filter(link => {
-                  // Hoppa över länkar som refererar till icke-existerande noder
-                  return filteredNodes.some(node => node === link.source) &&
-                         filteredNodes.some(node => node === link.target);
-                }))
-                .enter()
-                .append("line")
-                .attr("class", "link")
-                .style("stroke", "black")
-                .style("stroke-opacity", 0.6)
-                .style("stroke-width", function(d) { return Math.sqrt(d.value); });
-
-  // Skapa cirkulära noder för noderna
-  var node = svg.selectAll(".node")
-                .data(filteredNodes)
-                .enter()
-                .append("circle")
-                .attr("class", "node")
-                .attr("r", 5)
-                .style("fill", function(d) { return d.colour; });
-
-  // Skapa nodnamn för tooltip
-  //node.append("title")
-   //   .text(function(d) { return d.name; });
-
-  // Uppdatera nodernas och länkarnas positioner vid varje tick
-  simulation.on("tick", function() {
-    link.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
-
-    node.attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
-  });
-
-}).catch(function(error) {
-  console.log("Det uppstod ett fel: " + error);
-});
+  
+  
 
 
-  return svg.node();
+var simulation = d3.forceSimulation(nodes)
+                   .force("charge", d3.forceManyBody().strength(-50))
+                   .force("link", d3.forceLink().links(links))
+                   .force("center", d3.forceCenter(width / 2, height / 2))
+                   .on("tick", ticked);
+
+// Funktion för att uppdatera länkarna
+function updateLinks() {
+  var u = d3.select(".links")
+      .data(links)
+      .join("line")
+      .attr("x1", function(d){
+        return d.source.x
+      })
+      .attr("y1", function(d){
+        return d.source.y
+      })
+      .attr("x1", function(d){
+        return d.target.x
+      })
+      .attr("y2", function(d){
+        return d.target.y
+      });
 }
 
-// Anropa funktionen för att skapa diagrammet
-var networkDiagram = createNetworkDiagram();
+// Funktion för att uppdatera noderna
+function updateNodes() {
+    u = d3.select(".nodes")
+      .selectAll("text")
+      .data(nodes)
+      .join("text")
+      .text(function(d) {
+        return d.x
+      })
+      .attr("x", function(d){
+        return d.x
+      })
+      .attr("y", function(d){
+        return 5
+      });
+}
+
+// Funktion som anropas vid varje tick av simuleringen
+function ticked() {
+  updateLinks();
+  updateNodes();
+}
+}
+
+// Skapa nätverksdiagrammet och lägg till det i DOM
+var networkDiagram = createNetworkDiagram(data);
 document.getElementById("visualization").appendChild(networkDiagram);
-
-
 
 
