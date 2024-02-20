@@ -3,29 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Star Wars Character Relationships</title>
- 
-  <style>
-    /* Styla din visualisering här om det behövs */
-    .visualization {
-      border: 1px solid black;
-      width:80vw;
-      height:80vh;
-    }
-  </style>
+  <title>Document</title>
+  <link rel="stylesheet" href="content.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
-  <!-- Skapa en container för din visualisering -->
-  <div class="visualization">
+  <div id="content">
     <svg width="400" height="300">
       <g class="links"></g>
       <g class="nodes"></g>
     </svg>
   </div>
-  <!-- Load d3.js -->
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <!-- Länka till din JavaScript-fil som innehåller koden för visualiseringen -->
-  <script src="js/main.js"></script>
+  <script src="js/main.js" type="module"></script>
+
 </body>
 </html>
 
