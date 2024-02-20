@@ -7,15 +7,15 @@
     return; // Exit function if data loading fails
   }
 
- /* function createNetworkDiagram(data) {
-  const contentDiv = document.getElementById("visualization");
+
+ /* const contentDiv = document.getElementById("visualization");
 
   const width = contentDiv.clientWidth;
   const height = contentDiv.clientHeight;*/
 
 
 
-  var width = 400, height = 300
+  var width = 450, height = 340
 
   let nodes = data.nodes;
   let links = data.links;
@@ -46,30 +46,23 @@
   }
   
   function updateNodes() {
-    u = d3.select('.nodes')
-      .selectAll('text')
+    var u = d3.select('.nodes')
+      .selectAll('circle')
       .data(nodes)
-      .join('text')
-      .text(function(d) {
-        return d.name
-      })
-      .attr('x', function(d) {
-        return d.x
-      })
-      .attr('y', function(d) {
-        return d.y
-      })
-      .attr('dy', function(d) {
-        return 5
-      });
+      .join('circle')
+      .attr('cx', function(d) { return d.x; }) // x-koordinat
+      .attr('cy', function(d) { return d.y; }) // y-koordinat
+      .attr("r", function(d) { return d.value; }) // radie baserat på "value"
+      .attr("fill", function(d) { return d.colour; })
+      .attr("opacity", 0.7);
   }
-  
+ 
   function ticked() {
     updateLinks()
     updateNodes()
   }
   
 
-  var networkDiagram = createNetworkDiagram(data);
-  document.getElementById("visualization").appendChild(networkDiagram);
+  //document.getElementById("visualization").appendChild(networkDiagram);
+
 })();
