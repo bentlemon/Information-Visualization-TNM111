@@ -1,5 +1,9 @@
 
-
+circle.highlighted {
+  /* Styles for highlighted circles */
+  stroke: black;
+  stroke-width: 2;
+}
   line {
     stroke: #ccc;
   }
