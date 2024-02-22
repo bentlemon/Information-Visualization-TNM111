@@ -52,7 +52,7 @@ select1.addEventListener("change", async function() {
         .attr('y2', function(d) { return d.target.y });
     }
 
-    var selectedNode = null;
+    var selectedNode1 = null;
     function updateNodes() {
       d3.select('#content1 .nodes')
         .selectAll('circle')
@@ -65,12 +65,12 @@ select1.addEventListener("change", async function() {
         .attr("opacity", 0.7)
         .on("mouseover", function(event, d) {
           showTooltip(d);
-          if (selectedNode !== null && selectedNode !== this) {
-            d3.select(selectedNode).classed("highlighted", false);
+          if (selectedNode1 !== null && selectedNode1 !== this) {
+            d3.select(selectedNode1).classed("highlighted", false);
           }
           var isSelected = d3.select(this).classed("highlighted");
           d3.select(this).classed("highlighted", !isSelected);
-          selectedNode = this;
+          selectedNode1 = this;
         })
         .on("mouseout", function(event, d) {
           hideTooltip();
@@ -130,7 +130,7 @@ select2.addEventListener("change", async function() {
         .attr('y2', function(d) { return d.target.y });
     }
 
-    var selectedNode = null;
+    var selectedNode2 = null;
     function updateNodes() {
       d3.select('#content2 .nodes')
         .selectAll('circle')
@@ -143,12 +143,12 @@ select2.addEventListener("change", async function() {
         .attr("opacity", 0.7)
         .on("mouseover", function(event, d) {
           showTooltip(d);
-          if (selectedNode !== null && selectedNode !== this) {
-            d3.select(selectedNode).classed("highlighted", false);
+          if (selectedNode2 !== null && selectedNode2 !== this) {
+            d3.select(selectedNode2).classed("highlighted", false);
           }
           var isSelected = d3.select(this).classed("highlighted");
           d3.select(this).classed("highlighted", !isSelected);
-          selectedNode = this;
+          selectedNode2 = this;
         })
         .on("mouseout", function(event, d) {
           hideTooltip();
