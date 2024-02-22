@@ -8,7 +8,6 @@ let jsonFiles = [
   { name: "Star Wars Episode 7", url: "starwars-episode-7-interactions-allCharacters.json" },
   { name: "Star Wars Episode all", url: "starwars-full-interactions-allCharacters.json" }
 ];
-
 // Dropdown menu
 var select = document.createElement("select");
 select.id = "jsonSelect";
@@ -35,39 +34,36 @@ select.addEventListener("change", async function() {
     let nodes = data.nodes;
     let links = data.links;
 
-// Define zoom behavior
+    // Skapa en svg för att rita visualiseringen
+var svg = d3.select("body")
+.append("svg")
+.attr("width", width)
+.attr("height", height)
+.append("g");
+
+// Lägg till zoom-funktionalitet till svg
 var zoom = d3.zoom()
-  .extent([[0, 0], [width, height]])
-  .scaleExtent([1, 8])
-  .on("zoom", zoomed, { passive: true }); // Add { passive: true } here
+.scaleExtent([0.1, 10])
+.on('zoom', handleZoom);
 
-// Append SVG element
-var svg = d3.create("svg")
-  .attr("width", width)
-  .attr("height", height)
-  .call(zoom); // Add zoom behavior to the SVG
+svg.call(zoom);
 
-// Append a 'g' element to group nodes and links
-var g = svg.append("g");
+// Lägg till en grupp för noder och länkar
+svg.append("g").attr("class", "links");
+svg.append("g").attr("class", "nodes");
 
-// Function to handle zoom event
-function zoomed(event) {
-  // Get the current transform
-  var transform = event.transform;
-
-  // Apply the transform to the 'g' element containing nodes and links
-  g.attr("transform", transform);
+function handleZoom(e) {
+svg.attr("transform", e.transform);
 }
-
-
+    
     var simulation = d3.forceSimulation(nodes)
       .force('charge', d3.forceManyBody().strength(-100))
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('link', d3.forceLink().links(links))
       .on('tick', ticked);
-
+  
     function updateLinks() {
-      var u = g.selectAll('.links') // select within the 'g' element
+      var u = d3.select('.links')
         .selectAll('line')
         .data(links)
         .join('line')
@@ -76,10 +72,10 @@ function zoomed(event) {
         .attr('x2', function(d) { return d.target.x })
         .attr('y2', function(d) { return d.target.y });
     }
-
     var selectedNode = null;
+    var selectedNodeData;
     function updateNodes() {
-      g.selectAll('.nodes') // select within the 'g' element
+      d3.select('.nodes')
         .selectAll('circle')
         .data(nodes)
         .join('circle')
@@ -91,12 +87,12 @@ function zoomed(event) {
         .on("mouseover", function(event, d) {
           showTooltip(d);
           if (selectedNode !== null && selectedNode !== this) {
-            // Reset the appearance of the previously selected node
+            // Återställ den senaste valda nodens utseende
             d3.select(selectedNode).classed("highlighted", false);
           }
           var isSelected = d3.select(this).classed("highlighted");
           d3.select(this).classed("highlighted", !isSelected);
-          selectedNode = this; // Update the last selected node
+          selectedNode = this; // Uppdatera den senaste valda noden
         })
         .on("mouseout", function(event, d) {
           hideTooltip();
@@ -107,7 +103,7 @@ function zoomed(event) {
       var content = "";
       content += "Name: " + d.name + "<br/>";
       content += "Value: " + d.value + "<br/>";
-     
+      // Om du har fler attribut, kan du lägga till dem här
       return content;
     }
   
@@ -119,14 +115,15 @@ function zoomed(event) {
     
     function hideTooltip() {
       var tooltip = d3.select("#tooltip");
-      tooltip.style("opacity", 0.9); // Set to 0 if you want the tooltip to disappear
+      tooltip.style("opacity", 0.9); // Kan sätta 0 om man vill att rutan ska "försvinna"
     }
 
     function ticked() {
       updateLinks();
       updateNodes();
     }
-  
+
+
   } catch (error) {
     console.error("Error loading data:", error);
   }
