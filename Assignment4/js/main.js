@@ -23,16 +23,6 @@ jsonFiles.forEach(function(file) {
 
 document.body.appendChild(select);
 
-// Create a container for the visualization
-var visualizationContainer = document.createElement("div");
-visualizationContainer.id = "visualizationContainer";
-document.body.appendChild(visualizationContainer);
-
-// Create a container for displaying dot information
-var dotInfoContainer = document.createElement("div");
-dotInfoContainer.id = "dotInfoContainer";
-document.body.appendChild(dotInfoContainer);
-
 select.addEventListener("change", async function() {
   var selectedValue = this.value;
   var jsonURL = "./data/" + selectedValue;
@@ -61,9 +51,10 @@ select.addEventListener("change", async function() {
         .attr('x2', function(d) { return d.target.x })
         .attr('y2', function(d) { return d.target.y });
     }
-  
+    var selectedNode = null;
+    var selectedNodeData;
     function updateNodes() {
-      var circleSelection = d3.select('.nodes')
+      d3.select('.nodes')
         .selectAll('circle')
         .data(nodes)
         .join('circle')
@@ -72,39 +63,38 @@ select.addEventListener("change", async function() {
         .attr("r", function(d) { return d.value; })
         .attr("fill", function(d) { return d.colour; })
         .attr("opacity", 0.7)
-        .on("click", function(d) {
-          console.log(data.nodes.name)
+        .on("mouseover", function(event, d) {
+          showTooltip(d);
+          if (selectedNode !== null && selectedNode !== this) {
+            // Återställ den senaste valda nodens utseende
+            d3.select(selectedNode).classed("highlighted", false);
+          }
           var isSelected = d3.select(this).classed("highlighted");
           d3.select(this).classed("highlighted", !isSelected);
-          updateDotInfo(d); // Call the updateDotInfo function when a circle is clicked
+          selectedNode = this; // Uppdatera den senaste valda noden
+        })
+        .on("mouseout", function(event, d) {
+          hideTooltip();
         });
+    }
 
-      // Update information when a dot is selected from the dropdown menu
-      circleSelection.on("change", function(d) {
-        var selectedNode = this.value;
-        var selectedDot = d.name === selectedNode;
-        updateDotInfo(selectedDot);
-      });
+    function tooltipContent(d) {
+      var content = "";
+      content += "Name: " + d.name + "<br/>";
+      content += "Value: " + d.value + "<br/>";
+      // Om du har fler attribut, kan du lägga till dem här
+      return content;
     }
   
-    function updateDotInfo(dot) {
-      // Clear previous content
-      dotInfoContainer.innerHTML = "";
-
-      // Create and append elements to display dot information
-      var nameElement = document.createElement("p");
-      nameElement.textContent = "Name: " + dot.name;
-      dotInfoContainer.appendChild(nameElement);
-        
-      var valueElement = document.createElement("p");
-      valueElement.textContent = "Value: " + dot.value;
-      dotInfoContainer.appendChild(valueElement);
-
-      var colourElement = document.createElement("p");
-      colourElement.textContent = "Colour: " + dot.colour;
-      dotInfoContainer.appendChild(colourElement);
-
-      // Add more information as needed
+    function showTooltip(d) {
+      var tooltip = d3.select("#tooltip");
+      tooltip.html(tooltipContent(d));
+      tooltip.style("opacity", 0.9);
+    }
+    
+    function hideTooltip() {
+      var tooltip = d3.select("#tooltip");
+      tooltip.style("opacity", 0.9); // Kan sätta 0 om man vill att rutan ska "försvinna"
     }
 
     function ticked() {
