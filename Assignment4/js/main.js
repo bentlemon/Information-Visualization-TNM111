@@ -34,15 +34,40 @@ select.addEventListener("change", async function() {
     var width = 450, height = 340;
     let nodes = data.nodes;
     let links = data.links;
-    
+
+// Define zoom behavior
+var zoom = d3.zoom()
+  .extent([[0, 0], [width, height]])
+  .scaleExtent([1, 8])
+  .on("zoom", zoomed, { passive: true }); // Add { passive: true } here
+
+// Append SVG element
+var svg = d3.create("svg")
+  .attr("width", width)
+  .attr("height", height)
+  .call(zoom); // Add zoom behavior to the SVG
+
+// Append a 'g' element to group nodes and links
+var g = svg.append("g");
+
+// Function to handle zoom event
+function zoomed(event) {
+  // Get the current transform
+  var transform = event.transform;
+
+  // Apply the transform to the 'g' element containing nodes and links
+  g.attr("transform", transform);
+}
+
+
     var simulation = d3.forceSimulation(nodes)
       .force('charge', d3.forceManyBody().strength(-100))
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('link', d3.forceLink().links(links))
       .on('tick', ticked);
-  
+
     function updateLinks() {
-      var u = d3.select('.links')
+      var u = g.selectAll('.links') // select within the 'g' element
         .selectAll('line')
         .data(links)
         .join('line')
@@ -51,10 +76,10 @@ select.addEventListener("change", async function() {
         .attr('x2', function(d) { return d.target.x })
         .attr('y2', function(d) { return d.target.y });
     }
+
     var selectedNode = null;
-    var selectedNodeData;
     function updateNodes() {
-      d3.select('.nodes')
+      g.selectAll('.nodes') // select within the 'g' element
         .selectAll('circle')
         .data(nodes)
         .join('circle')
@@ -66,12 +91,12 @@ select.addEventListener("change", async function() {
         .on("mouseover", function(event, d) {
           showTooltip(d);
           if (selectedNode !== null && selectedNode !== this) {
-            // Återställ den senaste valda nodens utseende
+            // Reset the appearance of the previously selected node
             d3.select(selectedNode).classed("highlighted", false);
           }
           var isSelected = d3.select(this).classed("highlighted");
           d3.select(this).classed("highlighted", !isSelected);
-          selectedNode = this; // Uppdatera den senaste valda noden
+          selectedNode = this; // Update the last selected node
         })
         .on("mouseout", function(event, d) {
           hideTooltip();
@@ -82,7 +107,7 @@ select.addEventListener("change", async function() {
       var content = "";
       content += "Name: " + d.name + "<br/>";
       content += "Value: " + d.value + "<br/>";
-      // Om du har fler attribut, kan du lägga till dem här
+     
       return content;
     }
   
@@ -94,7 +119,7 @@ select.addEventListener("change", async function() {
     
     function hideTooltip() {
       var tooltip = d3.select("#tooltip");
-      tooltip.style("opacity", 0.9); // Kan sätta 0 om man vill att rutan ska "försvinna"
+      tooltip.style("opacity", 0.9); // Set to 0 if you want the tooltip to disappear
     }
 
     function ticked() {
