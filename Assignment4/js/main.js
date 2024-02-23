@@ -63,7 +63,7 @@ select1.addEventListener("change", async function() {
         .attr("r", function(d) { return d.value; })
         .attr("fill", function(d) { return d.colour; })
         .attr("opacity", 0.7)
-        .on("mouseover", function(event, d) {
+        .on("click", function(event, d) {
           showTooltip(d);
           if (selectedNode1 !== null && selectedNode1 !== this) {
             d3.select(selectedNode1).classed("highlighted", false);
@@ -71,11 +71,29 @@ select1.addEventListener("change", async function() {
           var isSelected = d3.select(this).classed("highlighted");
           d3.select(this).classed("highlighted", !isSelected);
           selectedNode1 = this;
+    
+          // Jämför den markerade noden med alla noder i content2
+          var nodeName = d.name;
+          var nodesInContent2 = d3.selectAll('#content2 .nodes circle').data();
+          var isNodePresentInContent2 = nodesInContent2.some(function(node) {
+            return node.name === nodeName;
+          });
+          if (isNodePresentInContent2 !== null && isNodePresentInContent2 !== this) {
+            d3.selectAll('#content2 .nodes circle')
+              .classed("highlighted", false);
+          }
+          {
+            // Om noden finns i content2, markera den
+            d3.selectAll('#content2 .nodes circle')
+              .classed("highlighted", function(node) {
+                return node.name === nodeName;
+              });
+          }
         })
         .on("mouseout", function(event, d) {
           hideTooltip();
         });
-    }
+    }   
 
     function ticked() {
       updateLinks();
@@ -141,7 +159,8 @@ select2.addEventListener("change", async function() {
         .attr("r", function(d) { return d.value; })
         .attr("fill", function(d) { return d.colour; })
         .attr("opacity", 0.7)
-        .on("mouseover", function(event, d) {
+        // Detta behöver inte vara med om vi inte vill att diagram 2 också ska vara interaktivt
+       /* .on("mouseover", function(event, d) {
           showTooltip(d);
           if (selectedNode2 !== null && selectedNode2 !== this) {
             d3.select(selectedNode2).classed("highlighted", false);
@@ -152,7 +171,7 @@ select2.addEventListener("change", async function() {
         })
         .on("mouseout", function(event, d) {
           hideTooltip();
-        });
+        });*/
     }
 
     function ticked() {
@@ -164,3 +183,35 @@ select2.addEventListener("change", async function() {
     console.error("Error loading data for content2:", error);
   }
 });
+
+function tooltipContent(d) {
+  var content = "";
+  content += "Name: " + d.name + "<br/>";
+  content += "Value: " + d.value + "<br/>";
+
+  var nodeName = d.name;
+  var nodesInContent2 = d3.selectAll('#content2 .nodes circle').data();
+  var findValueNode = nodesInContent2.find(function(node) {
+    return node.name === nodeName;
+  });
+
+  if (findValueNode) {
+    var content2 = "";
+    content2 += "Name: " + d.name + "<br/>";
+    content2 += "Value: " + findValueNode.value + "<br/>";
+    return content + content2;
+  } else {
+    return content;
+  }
+}
+
+function showTooltip(d) {
+  var tooltip = d3.select("#tooltip");
+  tooltip.html(tooltipContent(d));
+  tooltip.style("opacity", 0.9);
+}
+
+function hideTooltip() {
+  var tooltip = d3.select("#tooltip");
+  tooltip.style("opacity", 0); // Kan sätta 0 om man vill att rutan ska "försvinna"
+}

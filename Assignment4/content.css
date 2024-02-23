@@ -2,6 +2,7 @@
 circle.highlighted {
   /* Styles for highlighted circles */
   stroke: rgb(251, 248, 106);
+  position: relative;
   stroke-width: 3;
 }
   line {
@@ -22,7 +23,8 @@ circle.highlighted {
   color: #fff;
   pointer-events: none;
   border-radius: 4px;
-  top: 350px;
+  top: 450px;
+  z-index: 999;
 }
 
 body {
