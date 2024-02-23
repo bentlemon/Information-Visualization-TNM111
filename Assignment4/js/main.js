@@ -37,7 +37,7 @@ select1.addEventListener("change", async function() {
 
 
     var simulation = d3.forceSimulation(nodes)
-      .force('charge', d3.forceManyBody().strength(-100))
+      .force('charge', d3.forceManyBody().strength(-400))
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('link', d3.forceLink().links(links))
       .on('tick', ticked);
@@ -71,13 +71,7 @@ select1.addEventListener("change", async function() {
         .join('circle')
         .attr('cx', function(d) { return d.x; })
         .attr('cy', function(d) { return d.y; })
-        .attr("r", function(d) {
-          if(d.value > 30) {
-            return 29;
-          } else {
-            return d.value;
-          }
-           })
+        .attr("r", function(d) { return d.value;})
         .attr("fill", function(d) { return d.colour; })
         .attr("opacity", 0.7)
         .on("click", function(event, d) {
