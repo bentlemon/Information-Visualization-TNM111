@@ -35,6 +35,7 @@ select1.addEventListener("change", async function() {
     let nodes = data.nodes;
     let links = data.links;
 
+
     var simulation = d3.forceSimulation(nodes)
       .force('charge', d3.forceManyBody().strength(-100))
       .force('center', d3.forceCenter(width / 2, height / 2))
@@ -50,14 +51,12 @@ select1.addEventListener("change", async function() {
           .attr('y1', function(d) { return d.source.y })
           .attr('x2', function(d) { return d.target.x })
           .attr('y2', function(d) { return d.target.y })
-          .on("click", function(event, d) {
-            var sourceNode = d.source;
-            var targetNode = d.target;
+          .on("click", function(event, d) { 
+           
             showTooltip2(d);
             d3.select('#content1 .nodes').selectAll('circle')
               .classed("highlighted", function(node) {
-                
-                return node === sourceNode || node === targetNode;
+                return node === d.source || node === d.target;
               });
             
           });
@@ -72,7 +71,13 @@ select1.addEventListener("change", async function() {
         .join('circle')
         .attr('cx', function(d) { return d.x; })
         .attr('cy', function(d) { return d.y; })
-        .attr("r", function(d) { return d.value; })
+        .attr("r", function(d) {
+          if(d.value > 30) {
+            return 29;
+          } else {
+            return d.value;
+          }
+           })
         .attr("fill", function(d) { return d.colour; })
         .attr("opacity", 0.7)
         .on("click", function(event, d) {
@@ -219,13 +224,13 @@ function tooltipContent(d) {
 
 function tooltipContent2(d) {
   var content = "";
-  // Hitta namnet på källnoden (source node)
+  var nodes = d3.selectAll('#content1 .nodes circle').data();
+  // Hitta index på källnoden (source node)
   var sourceIndex = nodes.findIndex(function(node) {
     return node === d.source;
   });
   
- // var nodesInContent2 = d3.selectAll('#content2 .nodes circle').data();
-  //var sourceName = nodes[sourceIndex].name;
+  var sourceName = nodes[sourceIndex].name;
 
   // Hitta namnet på målnoden (target node)
   var targetIndex = nodes.findIndex(function(node) {
@@ -239,8 +244,6 @@ function tooltipContent2(d) {
 
   return content;
 }
-
-
 
 function showTooltip2(d) {
   var tooltip = d3.select("#tooltip");
@@ -258,3 +261,21 @@ function hideTooltip() {
   var tooltip = d3.select("#tooltip");
   tooltip.style("opacity", 0); // Kan sätta 0 om man vill att rutan ska "försvinna"
 }
+
+let zoom = d3.zoom()
+.scaleExtent([0.25, 10])
+.on('zoom', handleZoom);
+
+function handleZoom(e) {
+d3.selectAll('#content1 .nodes circle')
+ .attr('transform', e.transform);
+ d3.selectAll('#content1 .links')
+ .attr('transform', e.transform);
+}
+
+function initZoom() {
+d3.select('svg')
+ .call(zoom);
+}
+
+initZoom();
