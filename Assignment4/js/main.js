@@ -41,16 +41,28 @@ select1.addEventListener("change", async function() {
       .force('link', d3.forceLink().links(links))
       .on('tick', ticked);
 
-    function updateLinks() {
-      var u = d3.select('#content1 .links')
-        .selectAll('line')
-        .data(links)
-        .join('line')
-        .attr('x1', function(d) { return d.source.x })
-        .attr('y1', function(d) { return d.source.y })
-        .attr('x2', function(d) { return d.target.x })
-        .attr('y2', function(d) { return d.target.y });
-    }
+      function updateLinks() {
+        var u = d3.select('#content1 .links')
+          .selectAll('line')
+          .data(links)
+          .join('line')
+          .attr('x1', function(d) { return d.source.x })
+          .attr('y1', function(d) { return d.source.y })
+          .attr('x2', function(d) { return d.target.x })
+          .attr('y2', function(d) { return d.target.y })
+          .on("click", function(event, d) {
+            var sourceNode = d.source;
+            var targetNode = d.target;
+            showTooltip2(d);
+            d3.select('#content1 .nodes').selectAll('circle')
+              .classed("highlighted", function(node) {
+                
+                return node === sourceNode || node === targetNode;
+              });
+            
+          });
+      }
+      
 
     var selectedNode1 = null;
     function updateNodes() {
@@ -203,6 +215,37 @@ function tooltipContent(d) {
   } else {
     return content;
   }
+}
+
+function tooltipContent2(d) {
+  var content = "";
+  // Hitta namnet på källnoden (source node)
+  var sourceIndex = nodes.findIndex(function(node) {
+    return node === d.source;
+  });
+  
+ // var nodesInContent2 = d3.selectAll('#content2 .nodes circle').data();
+  //var sourceName = nodes[sourceIndex].name;
+
+  // Hitta namnet på målnoden (target node)
+  var targetIndex = nodes.findIndex(function(node) {
+    return node === d.target;
+  });
+  var targetName = nodes[targetIndex].name;
+
+  content += "Source Name: " + sourceName + "<br/>";
+  content += "Target Name: " + targetName + "<br/>";
+  content += "Value: " + d.value + "<br/>";
+
+  return content;
+}
+
+
+
+function showTooltip2(d) {
+  var tooltip = d3.select("#tooltip");
+  tooltip.html(tooltipContent2(d));
+  tooltip.style("opacity", 0.9);
 }
 
 function showTooltip(d) {
