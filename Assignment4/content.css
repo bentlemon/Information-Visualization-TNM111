@@ -1,4 +1,3 @@
-
 circle.highlighted {
   /* Styles for highlighted circles */
   stroke: rgb(251, 248, 106);
@@ -34,6 +33,14 @@ body {
   height: 100vh; /* Center content vertically */
 }
 
+#slider-container {
+  position: absolute;
+  top: 100px; /* Adjust as needed */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%) scale(1.12); 
+  z-index: 2; 
+}
+
 .content-section {
   display: inline-block;
   margin: 10px;
@@ -43,9 +50,9 @@ body {
 }
 
 #content1, #content2 {
-  background-color: #fdfdfd; 
-  width: 400px;
-  height: 400px;
+  background-color: #635f5f; 
+  width: 500px;
+  height: 450px;
   display: flex;
   flex-direction: column;
   align-items: center;
