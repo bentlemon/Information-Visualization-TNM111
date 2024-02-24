@@ -31,9 +31,13 @@ select1.addEventListener("change", async function () {
     var data = await d3.json(jsonURL);
     //console.log("Data loaded successfully for content1:", data);
 
-    // Calculate the minimum and maximum values in the dataset
-    var minValue = d3.min(data.nodes, d => d.value);
-    var maxValue = d3.max(data.nodes, d => d.value);
+    var width = 450, height = 340;
+    let nodes = data.nodes;
+    let links = data.links;
+
+    // Calculate the minimum and maximum values in the dataset - links
+    var minValue = d3.min(links, d => d.value);
+    var maxValue = d3.max(links, d => d.value);
     var selectedRange;
 
     // Define slider with the calculated min and max values
@@ -65,10 +69,6 @@ select1.addEventListener("change", async function () {
       updateNodesAndLinks(); // Call updateNodesAndLinks when the slider changes
     });
 
-    var width = 450, height = 340;
-    let nodes = data.nodes;
-    let links = data.links;
-
     var simulation = d3.forceSimulation(nodes)
       .force('charge', d3.forceManyBody().strength(-100))
       .force('center', d3.forceCenter(width / 2, height / 2))
@@ -76,20 +76,16 @@ select1.addEventListener("change", async function () {
       .on('tick', ticked);
 
     function updateLinks() {
-      // Filter nodes based on the selected range
-      var filteredNodes = nodes.filter(function (d) {
-        return d.value >= selectedRange[0] && d.value <= selectedRange[1];
-      });
-
-      // Extract the IDs of the filtered nodes
-      var filteredNodeIds = filteredNodes.map(function (d) {
+      // Extract all node IDs
+      var allNodeIds = nodes.map(function (d) {
         return d.id;
       });
 
-      // Filter links based on the selected range and filtered nodes
+    
+      // Filter links based on the selected range
       var filteredLinks = links.filter(function (d) {
         return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
-          filteredNodeIds.includes(d.source.id) && filteredNodeIds.includes(d.target.id);
+          allNodeIds.includes(d.source.id) && allNodeIds.includes(d.target.id);
       });
 
       var u = d3.select('#content1 .links')
@@ -102,9 +98,6 @@ select1.addEventListener("change", async function () {
         .attr('y1', function (d) { return d.source.y })
         .attr('x2', function (d) { return d.target.x })
         .attr('y2', function (d) { return d.target.y });
-
-      // Remove links that are not in the filtered set
-      u.exit().remove();
     }
 
     var tooltipVisible = false; // Variable to track tooltip visibility
@@ -112,9 +105,14 @@ select1.addEventListener("change", async function () {
     function updateNodes() {
       // Filter nodes based on the selected range
       var filteredNodes = nodes.filter(function (d) {
-        return d.value >= selectedRange[0] && d.value <= selectedRange[1];
+        // Check if there is at least one link connected to the node within the selected range
+        return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
+          links.some(link => 
+            (link.source.id === d.id || link.target.id === d.id) &&
+            link.value >= selectedRange[0] && link.value <= selectedRange[1]
+          );
       });
-
+      // --------------------------------------------------------------------------------
       d3.select('#content1 .nodes')
         .selectAll('circle')
         .data(filteredNodes)
