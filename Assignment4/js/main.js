@@ -38,11 +38,11 @@ select1.addEventListener("change", async function () {
     // Calculate the minimum and maximum values in the dataset - links
     var minValue = d3.min(links, d => d.value);
     var maxValue = d3.max(links, d => d.value);
-    var selectedRange;
+    var selectedRange = [];
 
     // Define slider with the calculated min and max values
     var slider = d3
-      .sliderBottom()
+      .sliderHorizontal()
       .min(minValue)
       .max(maxValue)
       .width(300)
@@ -63,7 +63,7 @@ select1.addEventListener("change", async function () {
       .call(slider);
 
     // Listen to slider events
-    slider.on("onchange", function (range) {
+    slider.on("onchange", (range) => {
       // Do something with the selected range
       selectedRange = range;
       updateNodesAndLinks(); // Call updateNodesAndLinks when the slider changes
@@ -84,6 +84,7 @@ select1.addEventListener("change", async function () {
     
       // Filter links based on the selected range
       var filteredLinks = links.filter(function (d) {
+        console.log(selectedRange[0])
         return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
           allNodeIds.includes(d.source.id) && allNodeIds.includes(d.target.id);
       });
