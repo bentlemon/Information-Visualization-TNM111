@@ -36,8 +36,8 @@ body {
 
 #slider-container {
   position: absolute;
-  top: 100px; /* Adjust as needed */
-  left: 50%; /* Center horizontally */
+  top: 100px; 
+  left: 50%; 
   transform: translateX(-50%) scale(1.12); 
   z-index: 2; 
 }
@@ -51,7 +51,7 @@ body {
 }
 
 #content1, #content2 {
-  background-color: #635f5f; 
+
   width: 500px;
   height: 450px;
   display: flex;

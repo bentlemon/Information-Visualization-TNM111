@@ -34,6 +34,7 @@ select1.addEventListener("change", async function () {
     var width = 450, height = 340;
     let nodes = data.nodes;
     let links = data.links;
+    let selectedRange = [];
 
 
     var simulation = d3.forceSimulation(nodes)
@@ -47,11 +48,10 @@ select1.addEventListener("change", async function () {
       var allNodeIds = nodes.map(function (d) {
         return d.id;
       });
-
     
       // Filter links based on the selected range
       var filteredLinks = links.filter(function (d) {
-        console.log(selectedRange[0])
+
         return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
           allNodeIds.includes(d.source.id) && allNodeIds.includes(d.target.id);
       });
@@ -67,8 +67,8 @@ select1.addEventListener("change", async function () {
         .attr('x2', function (d) { return d.target.x })
         .attr('y2', function (d) { return d.target.y });
     }
-      function updateLinks() {
-        var u = d3.select('#content1 .links')
+   /* function updateLinks() {
+      var u = d3.select('#content1 .links')
           .selectAll('line')
           .data(links)
           .join('line')
@@ -85,10 +85,11 @@ select1.addEventListener("change", async function () {
               });
             
           });
-      }
+      }*/
       
 
-    var tooltipVisible = false; // Variable to track tooltip visibility
+   
+      var tooltipVisible = false; // Variable to track tooltip visibility
     var selectedNode1 = null;
     function updateNodes() {
       // Filter nodes based on the selected range
@@ -103,7 +104,7 @@ select1.addEventListener("change", async function () {
       // --------------------------------------------------------------------------------
       d3.select('#content1 .nodes')
         .selectAll('circle')
-        .data(filteredNodes)
+       .data(nodes)
         .join('circle')
         .attr('cx', function (d) { return d.x; })
         .attr('cy', function (d) { return d.y; })
@@ -156,7 +157,7 @@ select1.addEventListener("change", async function () {
         });
     }
 
-    function updateNodesAndLinks() {
+   function updateNodesAndLinks() {
       updateLinks();
       updateNodes();
     }
