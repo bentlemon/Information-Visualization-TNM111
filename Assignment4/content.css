@@ -6,6 +6,7 @@ circle.highlighted {
 }
   line {
     stroke: #ccc;
+    stroke-width: 1;
   }
   text {
     text-anchor: middle;

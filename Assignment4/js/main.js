@@ -35,42 +35,9 @@ select1.addEventListener("change", async function () {
     let nodes = data.nodes;
     let links = data.links;
 
-    // Calculate the minimum and maximum values in the dataset - links
-    var minValue = d3.min(links, d => d.value);
-    var maxValue = d3.max(links, d => d.value);
-    var selectedRange = [];
-
-    // Define slider with the calculated min and max values
-    var slider = d3
-      .sliderHorizontal()
-      .min(minValue)
-      .max(maxValue)
-      .width(300)
-      .ticks((maxValue - minValue) / 10)
-      .default([minValue, maxValue]); // Initial range set to min and max
-
-    // Append the slider to a container
-    d3.select("#slider-container")
-      .select("svg") // Select existing svg if it exists
-      .remove(); // Remove existing svg to update with new slider
-
-    d3.select("#slider-container")
-      .append("svg")
-      .attr("width", 400)
-      .attr("height", 100)
-      .append("g")
-      .attr("transform", "translate(30,30)")
-      .call(slider);
-
-    // Listen to slider events
-    slider.on("onchange", (range) => {
-      // Do something with the selected range
-      selectedRange = range;
-      updateNodesAndLinks(); // Call updateNodesAndLinks when the slider changes
-    });
 
     var simulation = d3.forceSimulation(nodes)
-      .force('charge', d3.forceManyBody().strength(-100))
+      .force('charge', d3.forceManyBody().strength(-400))
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('link', d3.forceLink().links(links))
       .on('tick', ticked);
@@ -100,6 +67,26 @@ select1.addEventListener("change", async function () {
         .attr('x2', function (d) { return d.target.x })
         .attr('y2', function (d) { return d.target.y });
     }
+      function updateLinks() {
+        var u = d3.select('#content1 .links')
+          .selectAll('line')
+          .data(links)
+          .join('line')
+          .attr('x1', function(d) { return d.source.x })
+          .attr('y1', function(d) { return d.source.y })
+          .attr('x2', function(d) { return d.target.x })
+          .attr('y2', function(d) { return d.target.y })
+          .on("click", function(event, d) { 
+           
+            showTooltip2(d);
+            d3.select('#content1 .nodes').selectAll('circle')
+              .classed("highlighted", function(node) {
+                return node === d.source || node === d.target;
+              });
+            
+          });
+      }
+      
 
     var tooltipVisible = false; // Variable to track tooltip visibility
     var selectedNode1 = null;
@@ -273,6 +260,35 @@ function tooltipContent(d) {
   }
 }
 
+function tooltipContent2(d) {
+  var content = "";
+  var nodes = d3.selectAll('#content1 .nodes circle').data();
+  // Hitta index på källnoden (source node)
+  var sourceIndex = nodes.findIndex(function(node) {
+    return node === d.source;
+  });
+  
+  var sourceName = nodes[sourceIndex].name;
+
+  // Hitta namnet på målnoden (target node)
+  var targetIndex = nodes.findIndex(function(node) {
+    return node === d.target;
+  });
+  var targetName = nodes[targetIndex].name;
+
+  content += "Source Name: " + sourceName + "<br/>";
+  content += "Target Name: " + targetName + "<br/>";
+  content += "Value: " + d.value + "<br/>";
+
+  return content;
+}
+
+function showTooltip2(d) {
+  var tooltip = d3.select("#tooltip");
+  tooltip.html(tooltipContent2(d));
+  tooltip.style("opacity", 0.9);
+}
+
 function showTooltip(d) {
   var tooltip = d3.select("#tooltip");
   tooltip.html(tooltipContent(d));
@@ -283,3 +299,21 @@ function hideTooltip() {
   var tooltip = d3.select("#tooltip");
   tooltip.style("opacity", 0); // Kan sätta 0 om man vill att rutan ska "försvinna"
 }
+
+let zoom = d3.zoom()
+.scaleExtent([0.25, 10])
+.on('zoom', handleZoom);
+
+function handleZoom(e) {
+d3.selectAll('#content1 .nodes circle')
+ .attr('transform', e.transform);
+ d3.selectAll('#content1 .links')
+ .attr('transform', e.transform);
+}
+
+function initZoom() {
+d3.select('svg')
+ .call(zoom);
+}
+
+initZoom();
