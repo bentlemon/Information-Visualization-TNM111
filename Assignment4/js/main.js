@@ -28,9 +28,7 @@ select1.addEventListener("change", async function () {
   let jsonURL = "./data/" + selectedValue;
 
   try {
-    var data = await d3.json(jsonURL);
-    var selectedMovie = jsonFiles.find(movie => movie.name === selectedValue);
-
+    let data = await d3.json(jsonURL);
     //console.log("Data loaded successfully for content1:", data);
 
     let width = 450, height = 340;
@@ -49,7 +47,6 @@ select1.addEventListener("change", async function () {
       .min(minValue)
       .max(maxValue)
       .width(300)
-      .ticks(10)
       .ticks(10)
       .default([minValue, maxValue]); // Initial range set to min and max
 
@@ -74,17 +71,16 @@ select1.addEventListener("change", async function () {
       selectedRange = range;
       updateNodesAndLinks();
     });
-         // Konvertera numeriska ID:n till unika ID:n för noderna
-         nodes.forEach(function(node, index) {
-          node.id = index;
-        });
-  
-        // Konvertera numeriska käll- och målnod-ID:n till unika ID:n för länkarna
-        links.forEach(function(link) {
-          link.source = nodes[link.source].id;
-          link.target = nodes[link.target].id;
-        });
-  
+       // Konvertera numeriska ID:n till unika ID:n för noderna
+       nodes.forEach(function(node, index) {
+        node.id = index;
+      });
+
+      // Konvertera numeriska käll- och målnod-ID:n till unika ID:n för länkarna
+      links.forEach(function(link) {
+        link.source = nodes[link.source].id;
+        link.target = nodes[link.target].id;
+      });
         // Uppdatera länkar och noder
         updateNodesAndLinks();
 
@@ -106,12 +102,12 @@ select1.addEventListener("change", async function () {
     return d.id;
   });
 
-    
-      // Filter links based on the selected range
-      var filteredLinks = links.filter(function (d) {
-        return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
-          allNodeIds.includes(d.source.id) && allNodeIds.includes(d.target.id);
-      });
+
+  // Filter links based on the selected range
+  var filteredLinks = links.filter(function (d) {
+    return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
+      allNodeIds.includes(d.source.id) && allNodeIds.includes(d.target.id);
+  });
 
   var u = d3.select('#content1 .links')
     .selectAll('line')
@@ -132,26 +128,13 @@ select1.addEventListener("change", async function () {
               return node === d.source || node === d.target;
             });
         });
-        //linkSelection.exit().remove();
     }
-    
-
-
 
     let tooltipVisible = false; // Variable to track tooltip visibility
     let selectedNode1 = null;
 
     function updateNodes() {
-      // Filter nodes based on the selected range
-      var filteredNodes = nodes.filter(function (d) {
-        // Check if there is at least one link connected to the node within the selected range
-        return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
-          links.some(link => 
-            (link.source.id === d.id || link.target.id === d.id) &&
-            link.value >= selectedRange[0] && link.value <= selectedRange[1]
-          );
-      });
-      // --------------------------------------------------------------------------------
+
    // Extract all node IDs
    let allNodeIds = nodes.map(function(d) {
     return d.id;
@@ -226,12 +209,12 @@ nodeSelection.enter()
           // // Update tooltip visibility status
            tooltipVisible = !tooltipVisible;
         })
-      // .on("anotherEvent", function (event, d) {
-      //   // Always hide the tooltip when anotherEvent occurs
-      //   hideTooltip();
-      //   // Reset tooltip visibility status
-      //   tooltipVisible = false;
-      // });
+       .on("anotherEvent", function (event, d) {
+         // Always hide the tooltip when anotherEvent occurs
+         hideTooltip();
+         // Reset tooltip visibility status
+         tooltipVisible = false;
+       });
       nodeSelection.exit().remove();
     }
  
@@ -342,7 +325,7 @@ function tooltipContent(d) {
 }
 // Node mellan en länk 
 function tooltipContent2(d) {
-  let content = "";
+  var content = "<div class='tooltip-title'><u>Weight info</u></div><br/>";
   let nodes = d3.selectAll('#content1 .nodes circle').data();
   // Hitta index på källnoden (source node)
   let sourceIndex = nodes.findIndex(function (node) {
@@ -351,15 +334,14 @@ function tooltipContent2(d) {
 
   let sourceName = nodes[sourceIndex].name;
 
-  // Hitta namnet på målnoden (target node)
   let targetIndex = nodes.findIndex(function (node) {
     return node === d.target;
   });
   let targetName = nodes[targetIndex].name;
 
-  content += "Source Name: " + sourceName + "<br/>";
-  content += "Target Name: " + targetName + "<br/>";
-  content += "Value: " + d.value + "<br/>";
+  content += "<i>Source Name:</i> " + sourceName + "<br/>";
+  content += "<i>Target Name:</i> " + targetName + "<br/>";
+  content += "<i>Scenes together:</i> " + d.value + "<br/>";
 
   return content;
 }
