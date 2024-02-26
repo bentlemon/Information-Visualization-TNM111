@@ -217,8 +217,6 @@ nodeSelection.enter()
        });
       nodeSelection.exit().remove();
     }
- 
- 
 
     function ticked() {
       updateLinks();
@@ -323,9 +321,9 @@ function tooltipContent(d) {
     return content;
   }
 }
-// Node mellan en länk 
+// Noder mellan en länk 
 function tooltipContent2(d) {
-  var content = "<div class='tooltip-title'><u>Weight info</u></div><br/>";
+  var content = "<div class='tooltip-title'><u>Edge info</u></div><br/>";
   let nodes = d3.selectAll('#content1 .nodes circle').data();
   // Hitta index på källnoden (source node)
   let sourceIndex = nodes.findIndex(function (node) {
