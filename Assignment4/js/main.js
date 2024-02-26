@@ -75,7 +75,6 @@ select1.addEventListener("change", async function () {
          // Konvertera numeriska ID:n till unika ID:n för noderna
          nodes.forEach(function(node, index) {
           node.id = index;
-          //console.log(node)
         });
   
         // Konvertera numeriska käll- och målnod-ID:n till unika ID:n för länkarna
@@ -102,21 +101,17 @@ select1.addEventListener("change", async function () {
       }
 
     function updateLinks() {
-   // Extract all node IDs
-   let allNodeIds = nodes.map(function(d) {
-    return d.id;
-});
-
 // Filter links based on the selected range
 let filteredLinks = links.filter(function(d) {
-    return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
-        allNodeIds.includes(d.source.id) && allNodeIds.includes(d.target.id);
+  return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
+      d.target < nodes.index && d.source < nodes.index; // Kontrollera att index är inom range
 });
+
 
   // Uppdatera länkarna i SVG
   let linkSelection = d3.select('#content1 .links')
       .selectAll('line')
-      .data(filteredLinks, function(d) {return d.source.id + "-" + d.target.id; });
+      .data(filteredLinks)//, function(d) {return d.index + "-" + d.index; });
 
   // Skapa nya länkar för de nya datavärdena
   linkSelection.enter()
