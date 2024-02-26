@@ -28,7 +28,9 @@ select1.addEventListener("change", async function () {
   let jsonURL = "./data/" + selectedValue;
 
   try {
-    let data = await d3.json(jsonURL);
+    var data = await d3.json(jsonURL);
+    var selectedMovie = jsonFiles.find(movie => movie.name === selectedValue);
+
     //console.log("Data loaded successfully for content1:", data);
 
     let width = 450, height = 340;
@@ -47,6 +49,7 @@ select1.addEventListener("change", async function () {
       .min(minValue)
       .max(maxValue)
       .width(300)
+      .ticks(10)
       .ticks(10)
       .default([minValue, maxValue]); // Initial range set to min and max
 
@@ -103,12 +106,12 @@ select1.addEventListener("change", async function () {
     return d.id;
   });
 
-
-  // Filter links based on the selected range
-  var filteredLinks = links.filter(function (d) {
-    return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
-      allNodeIds.includes(d.source.id) && allNodeIds.includes(d.target.id);
-  });
+    
+      // Filter links based on the selected range
+      var filteredLinks = links.filter(function (d) {
+        return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
+          allNodeIds.includes(d.source.id) && allNodeIds.includes(d.target.id);
+      });
 
   var u = d3.select('#content1 .links')
     .selectAll('line')
@@ -139,8 +142,15 @@ select1.addEventListener("change", async function () {
     let selectedNode1 = null;
 
     function updateNodes() {
-   
-
+      // Filter nodes based on the selected range
+      var filteredNodes = nodes.filter(function (d) {
+        // Check if there is at least one link connected to the node within the selected range
+        return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
+          links.some(link => 
+            (link.source.id === d.id || link.target.id === d.id) &&
+            link.value >= selectedRange[0] && link.value <= selectedRange[1]
+          );
+      });
       // --------------------------------------------------------------------------------
    // Extract all node IDs
    let allNodeIds = nodes.map(function(d) {
@@ -306,9 +316,12 @@ select2.addEventListener("change", async function () {
 // ----------------------------------------------------------
 // En node
 function tooltipContent(d) {
-  let content = "";
-  content += "Name: " + d.name + "<br/>";
-  content += "Value: " + d.value + "<br/>";
+  var content = "<div class='tooltip-title'><u>Node info</u></div><br/>";
+  var selectedMovie = select1.options[select1.selectedIndex].text;
+
+  content += "" + selectedMovie + "<br/>";
+  content += "<i>Name:</i> " + d.name + "<br/>";
+  content += "<i>Occurrences:</i> " + d.value + "<br/>";
 
   let nodeName = d.name;
   let nodesInContent2 = d3.selectAll('#content2 .nodes circle').data();
@@ -317,9 +330,11 @@ function tooltipContent(d) {
   });
 
   if (findValueNode) {
-    let content2 = "";
-    content2 += "Name: " + d.name + "<br/>";
-    content2 += "Value: " + findValueNode.value + "<br/>";
+    var content2 = "";
+    var selectedMovie2 = select2.options[select2.selectedIndex].text;
+    content += "<br/>" + selectedMovie2 + "<br/>";
+    content2 += "<i>Name:</i> " + d.name + "<br/>";
+    content2 += "<i>Occurrences: </i>" + findValueNode.value + "<br/>";
     return content + content2;
   } else {
     return content;
