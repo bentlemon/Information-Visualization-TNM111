@@ -64,7 +64,6 @@ select1.addEventListener("change", async function () {
       .call(slider);
 
     selectedRange = [minValue, maxValue];
-   // updateNodesAndLinks();
 
     // Listen to slider events
     slider.on("onchange", function (range) {
@@ -88,7 +87,7 @@ select1.addEventListener("change", async function () {
 
 
     let simulation = d3.forceSimulation(nodes)
-      .force('charge', d3.forceManyBody().strength(-250))
+      .force('charge', d3.forceManyBody().strength(-300))
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('link', d3.forceLink().links(links))
       .on('tick', ticked);
@@ -101,21 +100,24 @@ select1.addEventListener("change", async function () {
       }
 
     function updateLinks() {
-// Filter links based on the selected range
-let filteredLinks = links.filter(function(d) {
-  return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
-      d.target < nodes.index && d.source < nodes.index; // Kontrollera att index är inom range
-});
+  // Extract all node IDs
+  var allNodeIds = nodes.map(function (d) {
+    return d.id;
+  });
 
 
-  // Uppdatera länkarna i SVG
-  let linkSelection = d3.select('#content1 .links')
-      .selectAll('line')
-      .data(filteredLinks)//, function(d) {return d.index + "-" + d.index; });
+  // Filter links based on the selected range
+  var filteredLinks = links.filter(function (d) {
+    return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
+      allNodeIds.includes(d.source.id) && allNodeIds.includes(d.target.id);
+  });
 
-  // Skapa nya länkar för de nya datavärdena
-  linkSelection.enter()
-      .append('line')
+  var u = d3.select('#content1 .links')
+    .selectAll('line')
+    .data(filteredLinks, function (d) {
+      return d.source.id + "-" + d.target.id; // Unique identifier for each link
+    })
+    .join('line')
       .attr('x1', function(d) { return d.source.x; })
       .attr('y1', function(d) { return d.source.y; })
       .attr('x2', function(d) { return d.target.x; })
@@ -129,7 +131,7 @@ let filteredLinks = links.filter(function(d) {
               return node === d.source || node === d.target;
             });
         });
-        linkSelection.exit().remove();
+        //linkSelection.exit().remove();
     }
     
 
