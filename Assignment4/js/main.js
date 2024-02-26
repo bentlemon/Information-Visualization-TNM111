@@ -92,8 +92,6 @@ select1.addEventListener("change", async function () {
       .force('link', d3.forceLink().links(links))
       .on('tick', ticked);
 
-
-
       function updateNodesAndLinks() {
         updateLinks();
         updateNodes();
@@ -306,7 +304,7 @@ select2.addEventListener("change", async function () {
 });
 
 // ----------------------------------------------------------
-
+// En node
 function tooltipContent(d) {
   let content = "";
   content += "Name: " + d.name + "<br/>";
@@ -327,7 +325,7 @@ function tooltipContent(d) {
     return content;
   }
 }
-
+// Node mellan en länk 
 function tooltipContent2(d) {
   let content = "";
   let nodes = d3.selectAll('#content1 .nodes circle').data();
