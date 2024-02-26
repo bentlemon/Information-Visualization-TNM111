@@ -10,12 +10,12 @@ let jsonFiles = [
 ];
 
 // Dropdown menu for content1
-var select1 = document.createElement("select");
+let select1 = document.createElement("select");
 select1.id = "jsonSelect1";
 
 // Add all options to choose from
 jsonFiles.forEach(function (file) {
-  var option = document.createElement("option");
+  let option = document.createElement("option");
   option.value = file.url;
   option.text = file.name;
   select1.appendChild(option);
@@ -24,25 +24,25 @@ jsonFiles.forEach(function (file) {
 document.getElementById("content1").appendChild(select1);
 
 select1.addEventListener("change", async function () {
-  var selectedValue = this.value;
-  var jsonURL = "./data/" + selectedValue;
+  let selectedValue = this.value;
+  let jsonURL = "./data/" + selectedValue;
 
   try {
-    var data = await d3.json(jsonURL);
+    let data = await d3.json(jsonURL);
     //console.log("Data loaded successfully for content1:", data);
 
-    var width = 450, height = 340;
+    let width = 450, height = 340;
     let nodes = data.nodes;
     let links = data.links;
     let selectedRange = [];
 
     // Calculate the minimum and maximum values in the dataset - links
-    var minValue = d3.min(links, d => d.value);
-    var maxValue = d3.max(links, d => d.value);
+    let minValue = d3.min(links, d => d.value);
+    let maxValue = d3.max(links, d => d.value);
 
 
     // Define slider with the calculated min and max values
-    var slider = d3
+    let slider = d3
       .sliderBottom()
       .min(minValue)
       .max(maxValue)
@@ -64,18 +64,32 @@ select1.addEventListener("change", async function () {
       .call(slider);
 
     selectedRange = [minValue, maxValue];
-    updateNodesAndLinks();
+   // updateNodesAndLinks();
 
     // Listen to slider events
     slider.on("onchange", function (range) {
       // Do something with the selected range
       selectedRange = range;
-      updateNodesAndLinks(); // Call updateNodesAndLinks when the slider changes
+      updateNodesAndLinks();
     });
+         // Konvertera numeriska ID:n till unika ID:n för noderna
+         nodes.forEach(function(node, index) {
+          node.id = index;
+          //console.log(node)
+        });
+  
+        // Konvertera numeriska käll- och målnod-ID:n till unika ID:n för länkarna
+        links.forEach(function(link) {
+          link.source = nodes[link.source].id;
+          link.target = nodes[link.target].id;
+        });
+  
+        // Uppdatera länkar och noder
+        updateNodesAndLinks();
 
 
-    var simulation = d3.forceSimulation(nodes)
-      .force('charge', d3.forceManyBody().strength(-400))
+    let simulation = d3.forceSimulation(nodes)
+      .force('charge', d3.forceManyBody().strength(-250))
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('link', d3.forceLink().links(links))
       .on('tick', ticked);
@@ -88,22 +102,21 @@ select1.addEventListener("change", async function () {
       }
 
     function updateLinks() {
-      // Extract all node IDs
-    // Extract all node IDs
-    var allNodeIds = nodes.map(function(d) {
-      return d.id;
-  });
+   // Extract all node IDs
+   let allNodeIds = nodes.map(function(d) {
+    return d.id;
+});
 
-  // Filter links based on the selected range
-  var filteredLinks = links.filter(function(d) {
-      return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
-          allNodeIds.includes(d.source.id) && allNodeIds.includes(d.target.id);
-  });
+// Filter links based on the selected range
+let filteredLinks = links.filter(function(d) {
+    return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
+        allNodeIds.includes(d.source.id) && allNodeIds.includes(d.target.id);
+});
 
   // Uppdatera länkarna i SVG
-  var linkSelection = d3.select('#content1 .links')
+  let linkSelection = d3.select('#content1 .links')
       .selectAll('line')
-      .data(filteredLinks, function(d) { return d.source.id + "-" + d.target.id; });
+      .data(filteredLinks, function(d) {return d.source.id + "-" + d.target.id; });
 
   // Skapa nya länkar för de nya datavärdena
   linkSelection.enter()
@@ -123,43 +136,44 @@ select1.addEventListener("change", async function () {
         });
         linkSelection.exit().remove();
     }
+    
 
 
 
-    var tooltipVisible = false; // Variable to track tooltip visibility
-    var selectedNode1 = null;
+    let tooltipVisible = false; // Variable to track tooltip visibility
+    let selectedNode1 = null;
 
     function updateNodes() {
-     
+   
 
       // --------------------------------------------------------------------------------
    // Extract all node IDs
-   var allNodeIds = nodes.map(function(d) {
+   let allNodeIds = nodes.map(function(d) {
     return d.id;
 });
 
 // Filter links based on the selected range
-var filteredLinks = links.filter(function(d) {
+let filteredLinks = links.filter(function(d) {
     return d.value >= selectedRange[0] && d.value <= selectedRange[1] &&
         allNodeIds.includes(d.source.id) && allNodeIds.includes(d.target.id);
 });
 
-// Hämta en lista över ID:n för alla noderna som är kopplade till de kvarvarande länkarna
-var linkedNodeIds = filteredLinks.reduce(function(ids, link) {
+// Hämta en lista över ID:n för alla noderna som är kopplade till de kletletande länkarna
+let linkedNodeIds = filteredLinks.reduce(function(ids, link) {
     if (!ids.includes(link.source.id)) ids.push(link.source.id);
     if (!ids.includes(link.target.id)) ids.push(link.target.id);
     return ids;
 }, []);
 
 // Filtera noderna baserat på om de är anslutna till återstående länkar
-var filteredNodes = nodes.filter(function(node) {
+let filteredNodes = nodes.filter(function(node) {
     return linkedNodeIds.includes(node.id);
 });
 
 // Uppdatera noderna i SVG
-var nodeSelection = d3.select('#content1 .nodes')
+let nodeSelection = d3.select('#content1 .nodes')
     .selectAll('circle')
-    .data(filteredNodes, function(d) { return d.id; });
+    .data(filteredNodes, function(d) { return d; });
 
 // Skapa nya noder för de nya datavärdena
 nodeSelection.enter()
@@ -177,35 +191,35 @@ nodeSelection.enter()
             showTooltip(d);
           }
 
-          // // Highlight logic
-          // if (selectedNode1 !== null && selectedNode1 !== this) {
-          //   d3.select(selectedNode1).classed("highlighted", false);
-          // }
+          // Highlight logic
+           if (selectedNode1 !== null && selectedNode1 !== this) {
+             d3.select(selectedNode1).classed("highlighted", false);
+           }
 
-          // var isSelected = d3.select(this).classed("highlighted");
-          // d3.select(this).classed("highlighted", !isSelected);
-          // selectedNode1 = this;
+           let isSelected = d3.select(this).classed("highlighted");
+           d3.select(this).classed("highlighted", !isSelected);
+           selectedNode1 = this;
 
-          // // Node comparison logic
-          // var nodeName = d.name;
-          // var nodesInContent2 = d3.selectAll('#content2 .nodes circle').data();
-          // var isNodePresentInContent2 = nodesInContent2.some(function (node) {
-          //   return node.name === nodeName;
-          // });
+           // Node comparison logic
+           let nodeName = d.name;
+           let nodesInContent2 = d3.selectAll('#content2 .nodes circle').data();
+           let isNodePresentInContent2 = nodesInContent2.some(function (node) {
+             return node.name === nodeName;
+           });
 
-          // if (isNodePresentInContent2 !== null && isNodePresentInContent2 !== this) {
-          //   d3.selectAll('#content2 .nodes circle')
-          //     .classed("highlighted", false);
-          // }
+           if (isNodePresentInContent2 !== null && isNodePresentInContent2 !== this) {
+             d3.selectAll('#content2 .nodes circle')
+               .classed("highlighted", false);
+           }
 
-          // // Node highlighting logic for content2
-          // d3.selectAll('#content2 .nodes circle')
-          //   .classed("highlighted", function (node) {
-          //     return node.name === nodeName;
-          //   });
+           // Node highlighting logic for content2
+           d3.selectAll('#content2 .nodes circle')
+             .classed("highlighted", function (node) {
+               return node.name === nodeName;
+             });
 
           // // Update tooltip visibility status
-          // tooltipVisible = !tooltipVisible;
+           tooltipVisible = !tooltipVisible;
         })
       // .on("anotherEvent", function (event, d) {
       //   // Always hide the tooltip when anotherEvent occurs
@@ -215,19 +229,6 @@ nodeSelection.enter()
       // });
       nodeSelection.exit().remove();
     }
-                // Konvertera numeriska ID:n till unika ID:n för noderna
-                nodes.forEach(function(node, index) {
-                  node.id = "node" + index;
-                });
-      
-                // Konvertera numeriska käll- och målnod-ID:n till unika ID:n för länkarna
-                links.forEach(function(link) {
-                  link.source = nodes[link.source].id;
-                  link.target = nodes[link.target].id;
-                });
-      
-                // Uppdatera länkar och noder
-                updateNodesAndLinks();
  
  
 
@@ -243,12 +244,12 @@ nodeSelection.enter()
 
 
 // Dropdown menu for content2 -----------------------------
-var select2 = document.createElement("select");
+let select2 = document.createElement("select");
 select2.id = "jsonSelect2";
 
 // Add all options to choose from
 jsonFiles.forEach(function (file) {
-  var option = document.createElement("option");
+  let option = document.createElement("option");
   option.value = file.url;
   option.text = file.name;
   select2.appendChild(option);
@@ -257,25 +258,25 @@ jsonFiles.forEach(function (file) {
 document.getElementById("content2").appendChild(select2);
 
 select2.addEventListener("change", async function () {
-  var selectedValue = this.value;
-  var jsonURL = "./data/" + selectedValue;
+  let selectedValue = this.value;
+  let jsonURL = "./data/" + selectedValue;
 
   try {
-    var data = await d3.json(jsonURL);
+    let data = await d3.json(jsonURL);
     //console.log("Data loaded successfully for content2:", data);
 
-    var width = 450, height = 340;
+    let width = 450, height = 340;
     let nodes = data.nodes;
     let links = data.links;
 
-    var simulation = d3.forceSimulation(nodes)
+    let simulation = d3.forceSimulation(nodes)
       .force('charge', d3.forceManyBody().strength(-100))
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('link', d3.forceLink().links(links))
       .on('tick', ticked);
 
     function updateLinks() {
-      var u = d3.select('#content2 .links')
+      let u = d3.select('#content2 .links')
         .selectAll('line')
         .data(links)
         .join('line')
@@ -310,18 +311,18 @@ select2.addEventListener("change", async function () {
 // ----------------------------------------------------------
 
 function tooltipContent(d) {
-  var content = "";
+  let content = "";
   content += "Name: " + d.name + "<br/>";
   content += "Value: " + d.value + "<br/>";
 
-  var nodeName = d.name;
-  var nodesInContent2 = d3.selectAll('#content2 .nodes circle').data();
-  var findValueNode = nodesInContent2.find(function (node) {
+  let nodeName = d.name;
+  let nodesInContent2 = d3.selectAll('#content2 .nodes circle').data();
+  let findValueNode = nodesInContent2.find(function (node) {
     return node.name === nodeName;
   });
 
   if (findValueNode) {
-    var content2 = "";
+    let content2 = "";
     content2 += "Name: " + d.name + "<br/>";
     content2 += "Value: " + findValueNode.value + "<br/>";
     return content + content2;
@@ -331,20 +332,20 @@ function tooltipContent(d) {
 }
 
 function tooltipContent2(d) {
-  var content = "";
-  var nodes = d3.selectAll('#content1 .nodes circle').data();
+  let content = "";
+  let nodes = d3.selectAll('#content1 .nodes circle').data();
   // Hitta index på källnoden (source node)
-  var sourceIndex = nodes.findIndex(function (node) {
+  let sourceIndex = nodes.findIndex(function (node) {
     return node === d.source;
   });
 
-  var sourceName = nodes[sourceIndex].name;
+  let sourceName = nodes[sourceIndex].name;
 
   // Hitta namnet på målnoden (target node)
-  var targetIndex = nodes.findIndex(function (node) {
+  let targetIndex = nodes.findIndex(function (node) {
     return node === d.target;
   });
-  var targetName = nodes[targetIndex].name;
+  let targetName = nodes[targetIndex].name;
 
   content += "Source Name: " + sourceName + "<br/>";
   content += "Target Name: " + targetName + "<br/>";
@@ -354,19 +355,19 @@ function tooltipContent2(d) {
 }
 
 function showTooltip2(d) {
-  var tooltip = d3.select("#tooltip");
+  let tooltip = d3.select("#tooltip");
   tooltip.html(tooltipContent2(d));
   tooltip.style("opacity", 0.9);
 }
 
 function showTooltip(d) {
-  var tooltip = d3.select("#tooltip");
+  let tooltip = d3.select("#tooltip");
   tooltip.html(tooltipContent(d));
   tooltip.style("opacity", 0.9);
 }
 
 function hideTooltip() {
-  var tooltip = d3.select("#tooltip");
+  let tooltip = d3.select("#tooltip");
   tooltip.style("opacity", 0); // Kan sätta 0 om man vill att rutan ska "försvinna"
 }
 
