@@ -297,11 +297,14 @@ select2.addEventListener("change", async function () {
 });
 
 // ----------------------------------------------------------
-
+// En node
 function tooltipContent(d) {
-  let content = "";
-  content += "Name: " + d.name + "<br/>";
-  content += "Value: " + d.value + "<br/>";
+  var content = "<div class='tooltip-title'><u>Node info</u></div><br/>";
+  var selectedMovie = select1.options[select1.selectedIndex].text;
+
+  content += "" + selectedMovie + "<br/>";
+  content += "<i>Name:</i> " + d.name + "<br/>";
+  content += "<i>Occurrences:</i> " + d.value + "<br/>";
 
   let nodeName = d.name;
   let nodesInContent2 = d3.selectAll('#content2 .nodes circle').data();
@@ -310,17 +313,19 @@ function tooltipContent(d) {
   });
 
   if (findValueNode) {
-    let content2 = "";
-    content2 += "Name: " + d.name + "<br/>";
-    content2 += "Value: " + findValueNode.value + "<br/>";
+    var content2 = "";
+    var selectedMovie2 = select2.options[select2.selectedIndex].text;
+    content += "<br/>" + selectedMovie2 + "<br/>";
+    content2 += "<i>Name:</i> " + d.name + "<br/>";
+    content2 += "<i>Occurrences: </i>" + findValueNode.value + "<br/>";
     return content + content2;
   } else {
     return content;
   }
 }
-
+// Node mellan en länk 
 function tooltipContent2(d) {
-  let content = "";
+  var content = "<div class='tooltip-title'><u>Weight info</u></div><br/>";
   let nodes = d3.selectAll('#content1 .nodes circle').data();
   // Hitta index på källnoden (source node)
   let sourceIndex = nodes.findIndex(function (node) {
@@ -329,15 +334,14 @@ function tooltipContent2(d) {
 
   let sourceName = nodes[sourceIndex].name;
 
-  // Hitta namnet på målnoden (target node)
   let targetIndex = nodes.findIndex(function (node) {
     return node === d.target;
   });
   let targetName = nodes[targetIndex].name;
 
-  content += "Source Name: " + sourceName + "<br/>";
-  content += "Target Name: " + targetName + "<br/>";
-  content += "Value: " + d.value + "<br/>";
+  content += "<i>Source Name:</i> " + sourceName + "<br/>";
+  content += "<i>Target Name:</i> " + targetName + "<br/>";
+  content += "<i>Scenes together:</i> " + d.value + "<br/>";
 
   return content;
 }
