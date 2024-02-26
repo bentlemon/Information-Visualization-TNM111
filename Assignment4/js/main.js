@@ -71,17 +71,16 @@ select1.addEventListener("change", async function () {
       selectedRange = range;
       updateNodesAndLinks();
     });
-         // Konvertera numeriska ID:n till unika ID:n för noderna
-         nodes.forEach(function(node, index) {
-          node.id = index;
-        });
-  
-        // Konvertera numeriska käll- och målnod-ID:n till unika ID:n för länkarna
-        links.forEach(function(link) {
-          link.source = nodes[link.source].id;
-          link.target = nodes[link.target].id;
-        });
-  
+       // Konvertera numeriska ID:n till unika ID:n för noderna
+       nodes.forEach(function(node, index) {
+        node.id = index;
+      });
+
+      // Konvertera numeriska käll- och målnod-ID:n till unika ID:n för länkarna
+      links.forEach(function(link) {
+        link.source = nodes[link.source].id;
+        link.target = nodes[link.target].id;
+      });
         // Uppdatera länkar och noder
         updateNodesAndLinks();
 
@@ -91,8 +90,6 @@ select1.addEventListener("change", async function () {
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('link', d3.forceLink().links(links))
       .on('tick', ticked);
-
-
 
       function updateNodesAndLinks() {
         updateLinks();
@@ -131,19 +128,13 @@ select1.addEventListener("change", async function () {
               return node === d.source || node === d.target;
             });
         });
-        //linkSelection.exit().remove();
     }
-    
-
-
 
     let tooltipVisible = false; // Variable to track tooltip visibility
     let selectedNode1 = null;
 
     function updateNodes() {
-   
 
-      // --------------------------------------------------------------------------------
    // Extract all node IDs
    let allNodeIds = nodes.map(function(d) {
     return d.id;
@@ -218,12 +209,12 @@ nodeSelection.enter()
           // // Update tooltip visibility status
            tooltipVisible = !tooltipVisible;
         })
-      // .on("anotherEvent", function (event, d) {
-      //   // Always hide the tooltip when anotherEvent occurs
-      //   hideTooltip();
-      //   // Reset tooltip visibility status
-      //   tooltipVisible = false;
-      // });
+       .on("anotherEvent", function (event, d) {
+         // Always hide the tooltip when anotherEvent occurs
+         hideTooltip();
+         // Reset tooltip visibility status
+         tooltipVisible = false;
+       });
       nodeSelection.exit().remove();
     }
  
