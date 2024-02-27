@@ -22,20 +22,13 @@ circle.highlighted {
   color: #eeeeee;
   pointer-events: none;
   border-radius: 4px;
-  right: 7%; 
+  right: 0%; 
   top: 25%;
   z-index: 999;
   
 }
 
-@media (max-width: 1500px) {
-  .tooltip {
-    top: auto; 
-    bottom: 5%; 
-    position: center;
-    transform: translateX(-50%);
-  }
-}
+
 
 .title-container {
   text-align: center;
@@ -66,9 +59,9 @@ body {
 #slider-container {
   position: absolute;
   fill: #ffffff;
-  top: 22%;
+  bottom: -10%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(1.12);
+  transform: translate(-50%, -50%);
   z-index: 2;
 }
 
@@ -82,8 +75,8 @@ body {
 
 #content1, #content2 {
   background-color: rgb(18, 18, 18, 0.97);; 
-  width: 500px;
-  height: 450px;
+  width: 400px;
+  height: 350px;
   display: flex;
   flex-direction: column;
   align-items: center;
